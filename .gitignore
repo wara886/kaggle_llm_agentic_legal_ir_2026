@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Keep Kaggle competition data local-only
+data_raw/
+
+# Generated outputs
+artifacts/
+outputs/
+logs/
+
