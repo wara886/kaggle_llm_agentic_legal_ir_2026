@@ -61,7 +61,7 @@ class DenseRetriever:
         if enable_field_aware:
             if source == "laws_de":
                 # 法规侧优先 title + text
-                return f"{title} {body} {row['citation']}".strip()
+                return f"{row['citation']} {title} {body}".strip()
             # 裁判侧优先 text
             return f"{body} {row['citation']}".strip()
         return f"{row['citation']} {title} {body}".strip()

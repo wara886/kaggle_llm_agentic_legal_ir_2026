@@ -348,6 +348,50 @@ def apply_dynamic_cut(
     return reranked[:fixed_top_k]
 
 
+def _apply_laws_evidence_consistency_calibration(
+    reranked: list[dict],
+    top_n: int = 80,
+) -> tuple[list[dict], dict]:
+    if not reranked:
+        return reranked, {"applied": 0, "rescored_laws": 0, "top_n": 0}
+
+    n = max(0, min(int(top_n), len(reranked)))
+    if n == 0:
+        return reranked, {"applied": 0, "rescored_laws": 0, "top_n": 0}
+
+    head = [dict(x) for x in reranked[:n]]
+    tail = reranked[n:]
+
+    rescored_laws = 0
+    for item in head:
+        source = item.get("source", "")
+        base = float(item.get("rerank_score", item.get("score", 0.0)))
+        is_laws = int(source == "laws_de")
+        is_rule = int(item.get("admission_is_rule_hit", 0))
+        is_norm = int(item.get("admission_is_normalization_consistent", 0))
+        is_family = int(item.get("admission_is_family_hit", 0))
+        is_issue = int(item.get("admission_is_issue_hit", 0))
+        is_sparse_dense = int(item.get("admission_is_sparse_dense_supported", 0))
+        is_dense_only_wo_support = int(item.get("admission_is_dense_only_without_other_support", 0))
+
+        evidence_score = 0.0
+        if is_laws:
+            evidence_score += 0.08 * is_rule
+            evidence_score += 0.04 * is_norm
+            evidence_score += 0.03 * is_family
+            evidence_score += 0.03 * is_issue
+            evidence_score += 0.05 * is_sparse_dense
+            evidence_score -= 0.04 * is_dense_only_wo_support
+            rescored_laws += 1
+
+        item["evidence_consistency_score"] = float(evidence_score)
+        item["rerank_score_ec"] = float(base + evidence_score)
+
+    head.sort(key=lambda x: float(x.get("rerank_score_ec", x.get("rerank_score", x.get("score", 0.0)))), reverse=True)
+    out = head + tail
+    return out, {"applied": 1, "rescored_laws": int(rescored_laws), "top_n": int(n)}
+
+
 def _route_to_retrieval_quota(route: RouteDecision) -> tuple[int, int, int, int]:
     if route.primary_source == "laws":
         return 120, 0, 80, 0
@@ -441,6 +485,8 @@ def run_split(
     enable_laws_rerank_input_shaping: bool = False,
     laws_rerank_shortlist_size: int = 320,
     laws_rerank_keep_fused_tail: int = 160,
+    enable_laws_evidence_consistency_calibration: bool = False,
+    laws_evidence_top_n: int = 80,
 ) -> tuple[dict[str, list[str]], list[dict], dict]:
     pred_map: dict[str, list[str]] = {}
     trace_rows: list[dict] = []
@@ -648,6 +694,14 @@ def run_split(
             fusion_mode_runtime = "full_rrf_no_court_dense"
 
         fused_scores = dict(dedup_keep_max([(c, s) for c, s in fused]))
+        sparse_laws_set = {x.citation for x in sparse_laws_items}
+        dense_laws_set = {x.citation for x in dense_laws_items}
+        issue_laws_set = {x.citation for x in issue_sparse_items}
+        rule_norm_hit_set = {
+            normalize_citation(getattr(x, "citation", ""))
+            for x in rule_laws_items
+            if normalize_citation(getattr(x, "citation", ""))
+        }
         if enable_laws_rerank_input_shaping:
             candidates, admission_stats = _build_rerank_candidates_with_laws_shaping(
                 fused=fused,
@@ -664,6 +718,22 @@ def run_split(
             candidates = []
             for citation, score in fused[:320]:
                 doc = doc_lookup.get(citation, {})
+                norm_c = normalize_citation(citation)
+                is_rule_hit = int(bool(norm_c and norm_c in rule_norm_hit_set))
+                is_norm_consistent = is_rule_hit
+                is_family_hit = int(bool(likely_families) and _citation_family_consistent(citation, likely_families))
+                is_issue_hit = int(citation in issue_laws_set)
+                is_laws = int(doc.get("source", "") == "laws_de")
+                is_sparse_hit = int(citation in sparse_laws_set)
+                is_dense_hit = int(citation in dense_laws_set)
+                is_sparse_dense_supported = int(is_sparse_hit and is_dense_hit)
+                is_dense_only_without_other_support = int(
+                    is_dense_hit
+                    and (not is_sparse_hit)
+                    and (not is_rule_hit)
+                    and (not is_family_hit)
+                    and (not is_issue_hit)
+                )
                 candidates.append(
                     {
                         "citation": citation,
@@ -673,11 +743,15 @@ def run_split(
                         "fused_score": score,
                         "score": score,
                         "admission_priority_tier": 0,
-                        "admission_is_rule_hit": 0,
-                        "admission_is_normalization_consistent": 0,
-                        "admission_is_family_hit": 0,
-                        "admission_is_issue_hit": 0,
-                        "admission_is_laws": int(doc.get("source", "") == "laws_de"),
+                        "admission_is_rule_hit": is_rule_hit,
+                        "admission_is_normalization_consistent": is_norm_consistent,
+                        "admission_is_family_hit": is_family_hit,
+                        "admission_is_issue_hit": is_issue_hit,
+                        "admission_is_laws": is_laws,
+                        "admission_is_sparse_hit": is_sparse_hit,
+                        "admission_is_dense_hit": is_dense_hit,
+                        "admission_is_sparse_dense_supported": is_sparse_dense_supported,
+                        "admission_is_dense_only_without_other_support": is_dense_only_without_other_support,
                         "admission_fused_rank": len(candidates) + 1,
                         "admission_pool_score": float(score),
                     }
@@ -692,7 +766,28 @@ def run_split(
                 "selected_issue_hit": 0,
             }
 
+        for item in candidates:
+            c = item.get("citation", "")
+            is_sparse_hit = int(c in sparse_laws_set)
+            is_dense_hit = int(c in dense_laws_set)
+            item["admission_is_sparse_hit"] = is_sparse_hit
+            item["admission_is_dense_hit"] = is_dense_hit
+            item["admission_is_sparse_dense_supported"] = int(is_sparse_hit and is_dense_hit)
+            item["admission_is_dense_only_without_other_support"] = int(
+                is_dense_hit
+                and (not is_sparse_hit)
+                and (not int(item.get("admission_is_rule_hit", 0)))
+                and (not int(item.get("admission_is_family_hit", 0)))
+                and (not int(item.get("admission_is_issue_hit", 0)))
+            )
+
         reranked = reranker.rerank_fn.rerank(query=query, candidates=candidates, top_n=320)
+        evidence_stats = {"applied": 0, "rescored_laws": 0, "top_n": 0}
+        if enable_laws_evidence_consistency_calibration:
+            reranked, evidence_stats = _apply_laws_evidence_consistency_calibration(
+                reranked=reranked,
+                top_n=laws_evidence_top_n,
+            )
         final_items = apply_dynamic_cut(
             reranked=reranked,
             mode=dynamic_mode,
@@ -794,6 +889,9 @@ def run_split(
                 "issue_phrase_query_terms": ";".join(issue_terms),
                 "issue_phrase_sparse_count": len({x.citation for x in issue_sparse_items}),
                 "issue_phrase_sparse_citations": ";".join([x.citation for x in issue_sparse_items]),
+                "laws_evidence_consistency_calibration_enabled": int(enable_laws_evidence_consistency_calibration),
+                "laws_evidence_top_n": int(laws_evidence_top_n),
+                "laws_evidence_rescored_laws": int(evidence_stats.get("rescored_laws", 0)),
                 "laws_final_cut_calibration_enabled": int(
                     enable_laws_final_cut_calibration
                     and is_nonexplicit_query
@@ -826,6 +924,30 @@ def run_split(
                 "rerank_input_priority_rule_hit_count": int(admission_stats.get("selected_rule_hit", 0)),
                 "rerank_input_priority_family_hit_count": int(admission_stats.get("selected_family_hit", 0)),
                 "rerank_input_priority_issue_hit_count": int(admission_stats.get("selected_issue_hit", 0)),
+                "rerank_input_rule_hit_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_rule_hit", 0)) == 1]
+                ),
+                "rerank_input_normalization_consistent_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_normalization_consistent", 0)) == 1]
+                ),
+                "rerank_input_family_consistent_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_family_hit", 0)) == 1]
+                ),
+                "rerank_input_issue_hit_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_issue_hit", 0)) == 1]
+                ),
+                "rerank_input_sparse_hit_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_sparse_hit", 0)) == 1]
+                ),
+                "rerank_input_dense_hit_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_dense_hit", 0)) == 1]
+                ),
+                "rerank_input_sparse_dense_supported_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_sparse_dense_supported", 0)) == 1]
+                ),
+                "rerank_input_dense_only_without_other_support_citations": ";".join(
+                    [x.get("citation", "") for x in candidates if int(x.get("admission_is_laws", 0)) == 1 and int(x.get("admission_is_dense_only_without_other_support", 0)) == 1]
+                ),
                 "fused_top200": ";".join([c for c, _ in fused[:200]]),
                 "fused_top320": ";".join([c for c, _ in fused[:320]]),
                 "rerank_input_citations": ";".join([x["citation"] for x in candidates]),
@@ -892,6 +1014,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--enable-laws-rerank-input-shaping", type=parse_bool_flag, default=False)
     parser.add_argument("--laws-rerank-shortlist-size", type=int, default=320)
     parser.add_argument("--laws-rerank-keep-fused-tail", type=int, default=160)
+    parser.add_argument("--enable-laws-evidence-consistency-calibration", type=parse_bool_flag, default=False)
+    parser.add_argument("--laws-evidence-top-n", type=int, default=80)
     parser.add_argument("--prefer-strong-reranker", type=parse_bool_flag, default=True)
     parser.add_argument("--dense-disable-sbert", action="store_true")
     parser.add_argument("--sparse-max-laws", type=int, default=175933)
@@ -987,6 +1111,8 @@ def main(argv: list[str] | None = None) -> None:
         enable_laws_rerank_input_shaping=args.enable_laws_rerank_input_shaping,
         laws_rerank_shortlist_size=args.laws_rerank_shortlist_size,
         laws_rerank_keep_fused_tail=args.laws_rerank_keep_fused_tail,
+        enable_laws_evidence_consistency_calibration=args.enable_laws_evidence_consistency_calibration,
+        laws_evidence_top_n=args.laws_evidence_top_n,
     )
     test_pred, test_trace, _ = run_split(
         rows=test_rows,
@@ -1033,6 +1159,8 @@ def main(argv: list[str] | None = None) -> None:
         enable_laws_rerank_input_shaping=args.enable_laws_rerank_input_shaping,
         laws_rerank_shortlist_size=args.laws_rerank_shortlist_size,
         laws_rerank_keep_fused_tail=args.laws_rerank_keep_fused_tail,
+        enable_laws_evidence_consistency_calibration=args.enable_laws_evidence_consistency_calibration,
+        laws_evidence_top_n=args.laws_evidence_top_n,
     )
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -1117,6 +1245,8 @@ def main(argv: list[str] | None = None) -> None:
         "enable_laws_rerank_input_shaping": args.enable_laws_rerank_input_shaping,
         "laws_rerank_shortlist_size": args.laws_rerank_shortlist_size,
         "laws_rerank_keep_fused_tail": args.laws_rerank_keep_fused_tail,
+        "enable_laws_evidence_consistency_calibration": args.enable_laws_evidence_consistency_calibration,
+        "laws_evidence_top_n": args.laws_evidence_top_n,
         "reranker_name": reranker.name,
         "reranker_fallback_reason": reranker.fallback_reason,
         "route_counts_val": val_routes,

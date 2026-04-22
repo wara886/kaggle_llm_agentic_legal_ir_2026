@@ -16,7 +16,7 @@ from legal_ir.normalization import normalize_citation
 def _doc_text(row: dict, text_max_chars: int) -> str:
     text = row.get("text", "")
     body = text[:text_max_chars] if text_max_chars > 0 else text
-    return f"{row.get('title', '')} {body} {row.get('citation', '')}".strip()
+    return f"{row.get('citation', '')} {row.get('title', '')} {body}".strip()
 
 
 def main() -> None:

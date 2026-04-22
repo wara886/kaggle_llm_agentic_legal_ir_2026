@@ -34,7 +34,7 @@ def _doc_text(row: dict, text_max_chars: int) -> str:
     title = row.get("title", "")
     text = row.get("text", "")
     body = text[:text_max_chars] if text_max_chars > 0 else text
-    return f"{title} {body} {row.get('citation', '')}".strip()
+    return f"{row.get('citation', '')} {title} {body}".strip()
 
 
 def _issue_overlap_count(text: str, issue_terms: list[str]) -> int:
