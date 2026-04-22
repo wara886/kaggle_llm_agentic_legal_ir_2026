@@ -1,0 +1,22 @@
+# OPTIONAL_train_aug_notes
+
+???????????????loss ?? + full mining scale ?????**??????????**?
+
+## ?????????????
+PowerShell:
+```powershell
+python ./release/submission_laws_first_v1/make_submission.py --config ./release/submission_laws_first_v1/submit_config.json --enable-train-aug
+```
+
+Bash/Linux/WSL:
+```bash
+python ./release/submission_laws_first_v1/make_submission.py --config ./release/submission_laws_first_v1/submit_config.json --enable-train-aug
+```
+
+## ??????
+- ???? run meta: `outputs/hard_negative_gap_fix_ablation_C_scalealign/run_meta_silver_baseline_v0.json`
+- ????: `artifacts/laws_minilm_p1_scalealign/minilm_laws_finetuned_mnrl_993`
+
+## ??
+- ?? `enable_training_aug_default=false`
+- ??????? `--enable-train-aug` ??????

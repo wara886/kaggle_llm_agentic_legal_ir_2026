@@ -1,0 +1,41 @@
+﻿query_id,predicted_citations
+test_001,Art. 8 Abs. 1 BetmPV;Art. 23 Abs. 1 ISLK-V;Art. 197e Abs. 2 AVO;Art. 3 632.324.27;Art. 28 Abs. 2 VFSD
+test_002,Art. 59 Abs. 1 SVG;Art. 23 Abs. 1 ZGB;Art. 390 Abs. 1 ZGB;Art. 28 Abs. 1 ZGB;Art. 450 Abs. 2 ZGB;Art. 28g Abs. 1 ZGB
+test_003,Art. 4 Abs. 2 BEG;Art. 3 Abs. 1ter STUG;Art. 24 Abs. 2 GüTV;Art. 222m Abs. 9 VTS;Art. 4 Abs. 1 GüTV
+test_004,Art. 166 Abs. 2 SchKG;Art. 80 Abs. 2 SchKG;Art. 67 Abs. 1 SchKG;Art. 271 Abs. 1 SchKG;Art. 232 Abs. 2 SchKG;Art. 271 Abs. 3 SchKG
+test_005,Art. 64 Abs. 1 SchKG;Art. 67 Abs. 1 SchKG;Art. 151 Abs. 1 SchKG;Art. 271 Abs. 3 SchKG;Art. 80 Abs. 2 SchKG;Art. 80 Abs. 1 SchKG
+test_006,Art. 2 830.22;Art. 8 Abs. 1 BetmPV;Art. 9 Abs. 2 VMILAK;Art. 12 Abs. 2 GesBG;Art. 15 BVV 1
+test_007,Art. 33 Abs. 1 BGerR;Art. 18 Abs. 1 412.101.221.27;Art. 4 412.101.221.27;Art. 16 412.101.221.27;Art. 40b OR;Art. 363 OR
+test_008,Art. 1 Abs. 4 VEV;Art. 1 Abs. 1 VASR;Art. 3 Abs. 1 221.434;Art. 3 632.324.27;Art. 40 Abs. 3 VLBE;Art. 277 Abs. 1 ZGB
+test_009,Art. 22 Abs. 3 ZGB;Art. 288 Abs. 2 ZGB;Art. 315b Abs. 2 ZGB;Art. 390 Abs. 1 ZGB;Art. 134 Abs. 4 ZGB;Art. 277 Abs. 1 ZGB
+test_010,Art. 189 StPO;Art. 398 Abs. 2 StPO;Art. 398 Abs. 3 StPO;Art. 115 Abs. 5 AIG;Art. 21 Abs. 1 StPO
+test_011,Art. 33 Abs. 1 BGerR;Art. 88 Abs. 2 OR;Art. 35 Abs. 2 OR;Art. 69a Abs. 2 AVO;Art. 167 OR
+test_012,Art. 5 Abs. 2 313.32;Art. 3 Abs. 1 UIDV;Art. 400 Abs. 1 OR;Art. 33 Abs. 1 BGerR;Art. 5 Abs. 1 OR
+test_013,Art. 2 830.22;Art. 3 414.131.7;Art. 1 Abs. 1 VASR;Art. 3 Abs. 1 221.434;Art. 2 Abs. 3 221.215.329.4
+test_014,Art. 4 ATSG;Art. 11 Abs. 2 414.134.1;Art. 11 Abs. 3 414.134.1;Art. 12 Abs. 2 414.134.1;Art. 13 Abs. 2 414.134.1;Art. 11 Abs. 1 414.205.1
+test_015,Art. 160 Abs. 3 ZGB;Art. 964f Abs. 2 OR;Art. 40b OR;Art. 23 Abs. 1 ZGB;Art. 189 ZGB;Art. 173 Abs. 2 ZGB
+test_016,Art. 28 Abs. 2 VFSD;Art. 18 Abs. 1 946.231.176.72;Art. 8 Abs. 1 BetmPV;Art. 5 Abs. 1 JSG;Art. 4 V-NISSG;Art. 277 Abs. 1 ZGB
+test_017,Art. 8 Abs. 1 BetmPV;Art. 3 632.324.27;Art. 43 Abs. 3 VNF;Art. 21 Abs. 10 818.102;Art. 21 Abs. 2 818.102;Art. 397 Abs. 1 OR
+test_018,Art. 8 Abs. 1 BetmPV;Art. 2 830.22;Art. 33 Abs. 3 817.022.12;Art. 3 632.324.27;Art. 3 Abs. 1 221.434;Art. 29 Abs. 2 BV
+test_019,Art. 390 Abs. 1 ZGB;Art. 285a Abs. 1 ZGB;Art. 467 ZGB;Art. 285 Abs. 2 ZGB;Art. 117 Abs. 1 ZGB;Art. 277 Abs. 1 ZGB
+test_020,Art. 961 OR;Art. 1058 Abs. 1 OR;Art. 1157 Abs. 1 OR;Art. 499 Abs. 1 OR;Art. 685b Abs. 1 OR;Art. 339b Abs. 1 OR
+test_021,Art. 398 Abs. 3 OR;Art. 1 Abs. 3 VSV;Art. 126 Abs. 3 HRegV;Art. 24 Abs. 3 943.11;Art. 399 Abs. 3 OR;Art. 349 Abs. 1 OR
+test_022,Art. 390 Abs. 1 ZGB;Art. 390 Abs. 3 ZGB;Art. 264c Abs. 3 ZGB;Art. 267 Abs. 3 ZGB;Art. 105 ZGB
+test_023,Art. 8 Abs. 1 BetmPV;Art. 2 830.22;Art. 126p Abs. 3 KKV;Art. 126q Abs. 5 KKV;Art. 126u Abs. 1 KKV
+test_024,Art. 288 Abs. 2 ZGB;Art. 390 Abs. 1 ZGB;Art. 23 Abs. 1 ZGB;Art. 23 Abs. 2 ZGB;Art. 28g Abs. 2 ZGB;Art. 160 Abs. 2 ZPO
+test_025,Art. 40b OR;Art. 167 OR;Art. 23 Abs. 1 ZGB;Art. 134 Abs. 1 OR;Art. 471 Abs. 1 OR;Art. 117 Abs. 1 ZGB
+test_026,Art. 374 Abs. 2 ZGB;Art. 527 ZGB;Art. 540 Abs. 1 ZGB;Art. 288 Abs. 2 ZGB;Art. 390 Abs. 1 ZGB;Art. 298b Abs. 3bis ZGB
+test_027,Art. 23 Abs. 1 ZGB;Art. 390 Abs. 1 ZGB;Art. 28g Abs. 2 ZGB;Art. 268 Abs. 1 ZGB;Art. 288 Abs. 2 ZGB;Art. 296 Abs. 3 ZGB
+test_028,Art. 58 Abs. 1 OR;Art. 734a Abs. 2 OR;Art. 23 Abs. 1 ZGB;Art. 2 Abs. 2 GesBG;Art. 83 Abs. 3 SprstV;Art. 2 Abs. 2 822.115.4
+test_029,Art. 3 Abs. 1 221.434;Art. 8 Abs. 1 BetmPV;Art. 2 830.22;Art. 1 Abs. 1 VASR;Art. 3 414.131.7
+test_030,Art. 952 Abs. 1 ZGB;Art. 23 Abs. 1 ZGB;Art. 189 ZGB;Art. 952 Abs. 2 ZGB;Art. 952 Abs. 3 ZGB;Art. 277 Abs. 1 ZGB
+test_031,Art. 2 830.22;Art. 28 Abs. 2 VFSD;Art. 43 Abs. 3 VNF;Art. 3 Abs. 1 221.434;Art. 9 Abs. 2 VMILAK
+test_032,Art. 23 Abs. 1 ZGB;Art. 390 Abs. 1 ZGB;Art. 28g Abs. 2 ZGB;Art. 154 Abs. 4 StPO;Art. 390 Abs. 3 ZGB;Art. 221 Abs. 1 StPO
+test_033,Art. 8 Abs. 1 BetmPV;Art. 3 632.324.27;Art. 3 414.131.7;Art. 3 Abs. 1 221.434;Art. 13 Abs. 2 414.134.1
+test_034,Art. 839 Abs. 1 ZGB;Art. 839 Abs. 2 ZGB;Art. 288 Abs. 2 ZGB;Art. 839 Abs. 6 ZGB;Art. 454 Abs. 2 ZGB
+test_035,Art. 263 ZPO;Art. 251a Abs. 1 ZPO;Art. 5 Abs. 1 ZPO;Art. 133 ZPO;Art. 238 ZPO;Art. 114 ZPO
+test_036,Art. 255 Abs. 1 StPO;Art. 197 Abs. 1 StPO;Art. 101 Abs. 1 StPO;Art. 255 Abs. 3 StPO;Art. 255 Abs. 2 StPO;Art. 201 Abs. 2 StPO;Art. 20 Abs. 1 StPO;Art. 117 Abs. 1 StPO
+test_037,Art. 8 Abs. 1 BetmPV;Art. 197e Abs. 2 AVO;Art. 2 412.106.12;Art. 3 Abs. 1 221.434;Art. 9 Abs. 2 VMILAK
+test_038,Art. 28 Abs. 2 VFSD;Art. 43 Abs. 3 VNF;Art. 11 Abs. 3 414.134.1;Art. 62 747.11;Art. 5 Abs. 1 414.205.1;Art. 312 StGB
+test_039,Art. 731b Abs. 1 OR;Art. 23 Abs. 2 747.111;Art. 48 Abs. 2 747.301;Art. 8 Abs. 1 BVV 1;Art. 22 Abs. 3 DZV;Art. 908 OR
+test_040,Art. 23 Abs. 1 ZGB;Art. 390 Abs. 1 ZGB;Art. 513 Abs. 3 ZGB;Art. 288 Abs. 2 ZGB;Art. 104 ZGB

@@ -1,0 +1,50 @@
+{
+  "freeze_name": "submission_laws_first_v1",
+  "base_meta_source": "outputs/silver_training_gap_fix_ablation_A_p3_frozen/run_meta_silver_baseline_v0.json",
+  "pipeline_script": "scripts/run_silver_baseline_v0.py",
+  "input_test_csv": "data_raw/competition_data/test.csv",
+  "output_submission_csv": "release/submission_laws_first_v1/submission.csv",
+  "runtime_output_dir": "outputs/release_submission_laws_first_v1",
+  "base_flags": {
+    "dynamic_mode": "fixed_top_k",
+    "fixed_top_k": 5,
+    "score_threshold": 0.15,
+    "relative_threshold": 0.85,
+    "enable_router": true,
+    "router_version": "v1",
+    "prefer_strong_reranker": false,
+    "enable_court_mainline": false,
+    "enable_court_dense": false,
+    "sparse_max_court": 0,
+    "dense_max_court": 0,
+    "seed_floor_sparse": 0,
+    "seed_floor_dense": 0,
+    "sparse_max_laws": 175933,
+    "dense_max_laws": 175933,
+    "enable_rule_exact": true,
+    "rule_top_k_laws": 20,
+    "enable_laws_primary_german_expansion": false,
+    "enable_law_family_constraints": true,
+    "law_family_boost": 2.5,
+    "law_family_min_keep": 5,
+    "enable_issue_phrase_refinement": true,
+    "issue_phrase_top_k": 24,
+    "issue_phrase_boost": 2.5,
+    "issue_phrase_max_groups": 4,
+    "issue_phrase_max_terms": 16,
+    "enable_laws_final_cut_calibration": true,
+    "laws_final_fused_rescue_top_k": 1,
+    "enable_laws_rerank_input_shaping": false,
+    "laws_rerank_shortlist_size": 320,
+    "laws_rerank_keep_fused_tail": 160
+  },
+  "enable_training_aug_default": false,
+  "training_aug_option": {
+    "available": true,
+    "meta_source": "outputs/hard_negative_gap_fix_ablation_C_scalealign/run_meta_silver_baseline_v0.json",
+    "override_flags": {
+      "court_dense_model_name": "artifacts/laws_minilm_p1_scalealign/minilm_laws_finetuned_mnrl_993",
+      "dense_max_laws": 175933
+    }
+  }
+}

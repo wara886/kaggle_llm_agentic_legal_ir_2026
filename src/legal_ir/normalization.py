@@ -22,6 +22,9 @@ def normalize_citation(citation: str) -> str:
     text = re.sub(r"\bArt\s+\.", "Art.", text)
     text = re.sub(r"\bAbs\s+\.", "Abs.", text)
     text = re.sub(r"\bE\s+\.", "E.", text)
+    text = re.sub(r"\s+lit\.?\s+[a-z]\b", "", text, flags=re.I)
+    text = re.sub(r"\s+Ziff\.?\s+[0-9a-z.]+\b", "", text, flags=re.I)
+    text = SPACE_RE.sub(" ", text).strip()
     return text
 
 
@@ -30,4 +33,3 @@ def split_citations(serialized: str) -> list[str]:
         return []
     parts = [normalize_citation(x) for x in serialized.split(";")]
     return [x for x in parts if x]
-
