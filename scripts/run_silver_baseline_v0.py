@@ -13,6 +13,7 @@ sys.path.append(str(ROOT / "src"))
 from citation_normalizer import normalize_citation
 from fusion import rrf_fusion
 from law_family import (
+    ISSUE_PHRASE_RULES,
     augment_bilingual_pack,
     augment_laws_query_pack,
     build_issue_laws_query_pack,
@@ -29,7 +30,7 @@ from query_expansion import build_source_aware_query_packs, expand_query_from_mu
 from query_preprocess import preprocess_query
 from rerank import NoOpReranker, TokenOverlapReranker
 from retrieval_dense import DenseRetriever
-from retrieval_rules import RuleCitationRetriever
+from retrieval_rules import RuleCitationRetriever, RuleRetrievedItem
 from retrieval_sparse import SparseRetriever
 from source_router import RouteDecision, route_query, route_query_v1_1
 from legal_ir.data_loader import load_query_split
@@ -440,6 +441,186 @@ def _route_to_retrieval_quota_v1(
     return 60, 60, 40, 40
 
 
+def _allow_explicit_stpo_bv_issue_refinement(query: str, likely_families: list[str]) -> bool:
+    family_set = {f.upper() for f in likely_families if f}
+    if not ({"STPO", "BV"} & family_set):
+        return False
+    text = (query or "").lower()
+    cues = [
+        "pretrial detention",
+        "pre-trial detention",
+        "detention",
+        "coercive measures",
+        "collusion",
+        "flight risk",
+        "sufficient suspicion",
+        "right to be heard",
+        "presumption of innocence",
+        "extension",
+        "proportionality",
+    ]
+    return any(cue in text for cue in cues)
+
+
+ISSUE_GROUP_SEED_CITATIONS: dict[str, list[str]] = {
+    "STPO:pretrial_detention": [
+        "Art. 212 Abs. 3 StPO",
+        "Art. 221 Abs. 1 StPO",
+        "Art. 221 Abs. 2 StPO",
+        "Art. 222 StPO",
+        "Art. 227 Abs. 1 StPO",
+        "Art. 227 Abs. 2 StPO",
+        "Art. 227 Abs. 3 StPO",
+    ],
+    "STPO:appeal_costs_criminal_procedure": [
+        "Art. 135 Abs. 3 StPO",
+        "Art. 135 Abs. 4 StPO",
+        "Art. 382 Abs. 1 StPO",
+        "Art. 385 Abs. 1 StPO",
+        "Art. 390 Abs. 2 StPO",
+        "Art. 393 Abs. 1 StPO",
+        "Art. 396 Abs. 1 StPO",
+        "Art. 422 Abs. 1 StPO",
+        "Art. 422 Abs. 2 StPO",
+        "Art. 428 Abs. 1 StPO",
+    ],
+    "BV:presumption_of_innocence": [
+        "Art. 10 Abs. 1 StPO",
+    ],
+    "BV:right_to_be_heard": [
+        "Art. 29 Abs. 2 BV",
+        "Art. 80 Abs. 2 StPO",
+    ],
+    "ZGB:custody_visitation": [
+        "Art. 133 Abs. 1 ZGB",
+        "Art. 133 Abs. 2 ZGB",
+        "Art. 273 Abs. 1 ZGB",
+        "Art. 274 Abs. 2 ZGB",
+        "Art. 296 Abs. 1 ZGB",
+        "Art. 296 Abs. 2 ZGB",
+        "Art. 296 Abs. 3 ZGB",
+        "Art. 298 Abs. 2bis ZGB",
+        "Art. 298b Abs. 3bis ZGB",
+    ],
+    "ZGB:child_best_interests_support": [
+        "Art. 125 ZGB",
+        "Art. 133 Abs. 1 ZGB",
+        "Art. 133 Abs. 2 ZGB",
+        "Art. 276 ZGB",
+        "Art. 276a Abs. 1 ZGB",
+        "Art. 276a Abs. 2 ZGB",
+        "Art. 277 Abs. 1 ZGB",
+        "Art. 278 Abs. 2 ZGB",
+        "Art. 285 Abs. 1 ZGB",
+        "Art. 290 Abs. 1 ZGB",
+    ],
+    "ZGB:maintenance_security_enforcement": [
+        "Art. 125 ZGB",
+        "Art. 132 Abs. 2 ZGB",
+        "Art. 276 ZGB",
+        "Art. 285 Abs. 1 ZGB",
+        "Art. 290 Abs. 1 ZGB",
+        "Art. 291 ZGB",
+        "Art. 292 ZGB",
+        "Art. 293 ZGB",
+    ],
+    "ZGB:ownership_good_faith_possession": [
+        "Art. 3 Abs. 2 ZGB",
+        "Art. 8 ZGB",
+        "Art. 714 Abs. 1 ZGB",
+        "Art. 922 ZGB",
+        "Art. 923 ZGB",
+        "Art. 924 Abs. 1 ZGB",
+        "Art. 933 ZGB",
+        "Art. 934 Abs. 1 ZGB",
+        "Art. 934 Abs. 1bis ZGB",
+        "Art. 934 Abs. 2 ZGB",
+        "Art. 936 ZGB",
+    ],
+    "ZGB:holographic_will_form": [
+        "Art. 498 ZGB",
+        "Art. 499 ZGB",
+        "Art. 505 Abs. 1 ZGB",
+        "Art. 520 ZGB",
+    ],
+    "ZGB:testamentary_capacity": [
+        "Art. 16 ZGB",
+        "Art. 467 ZGB",
+        "Art. 469 ZGB",
+        "Art. 519 Abs. 1 ZGB",
+    ],
+    "OR:contract_work_liability": [
+        "Art. 41 OR",
+        "Art. 97 Abs. 1 OR",
+        "Art. 101 OR",
+        "Art. 248 Abs. 1 OR",
+        "Art. 363 OR",
+        "Art. 364 Abs. 1 OR",
+        "Art. 367 Abs. 1 OR",
+        "Art. 368 OR",
+        "Art. 398 Abs. 1 OR",
+        "Art. 398 Abs. 2 OR",
+    ],
+    "OR:bank_forged_payment_orders": [
+        "Art. 97 Abs. 1 OR",
+        "Art. 100 Abs. 1 OR",
+        "Art. 101 OR",
+        "Art. 397 Abs. 1 OR",
+        "Art. 398 Abs. 1 OR",
+        "Art. 398 Abs. 2 OR",
+        "Art. 399 Abs. 1 OR",
+    ],
+    "OR:gross_negligence_exculpation_currency": [
+        "Art. 99 Abs. 2 OR",
+        "Art. 100 Abs. 1 OR",
+        "Art. 100 Abs. 2 OR",
+        "Art. 84 Abs. 1 OR",
+    ],
+}
+
+
+def _issue_seed_items(issue_groups: list[str], score: float = 50.0) -> list[RuleRetrievedItem]:
+    out: list[RuleRetrievedItem] = []
+    seen: set[str] = set()
+    for group in issue_groups:
+        for citation in ISSUE_GROUP_SEED_CITATIONS.get(group, []):
+            norm = normalize_citation(citation)
+            if not norm or norm in seen:
+                continue
+            out.append(
+                RuleRetrievedItem(
+                    citation=norm,
+                    source="laws_de",
+                    score=float(score),
+                    method="issue_seed",
+                )
+            )
+            seen.add(norm)
+    return out
+
+
+def _issue_terms_for_groups(group_names: list[str], max_terms: int) -> list[str]:
+    terms: list[str] = []
+    seen: set[str] = set()
+    for group_name in group_names:
+        if ":" not in group_name:
+            continue
+        fam, rule_name = group_name.split(":", 1)
+        for rule in ISSUE_PHRASE_RULES.get(fam, []):
+            if rule.get("name") != rule_name:
+                continue
+            for term in rule.get("terms", []):
+                key = str(term).lower()
+                if key in seen:
+                    continue
+                terms.append(str(term))
+                seen.add(key)
+                if len(terms) >= max(0, int(max_terms)):
+                    return terms
+            break
+    return terms
+
+
 def run_split(
     rows: list[dict],
     sparse: SparseRetriever,
@@ -476,6 +657,11 @@ def run_split(
     law_family_boost: float = 2.5,
     law_family_min_keep: int = 5,
     enable_issue_phrase_refinement: bool = False,
+    issue_phrase_allow_group: list[str] | None = None,
+    enable_issue_seed_citations: bool = False,
+    issue_seed_allow_group: list[str] | None = None,
+    enable_explicit_stpo_bv_issue_refinement: bool = False,
+    enable_explicit_issue_seed_citations: bool = False,
     issue_phrase_top_k: int = 24,
     issue_phrase_boost: float = 2.5,
     issue_phrase_max_groups: int = 4,
@@ -581,19 +767,39 @@ def run_split(
         issue_groups = []
         issue_sparse_items = []
         is_nonexplicit_query = not RuleCitationRetriever.extract_patterns(query)
+        allow_explicit_social_issue_refinement = bool(
+            (not is_nonexplicit_query)
+            and likely_families
+            and any(f in {"ATSG", "IVG"} for f in likely_families)
+            and len(rule_laws_items) == 0
+        )
+        allow_explicit_stpo_bv_issue_refinement = bool(
+            enable_explicit_stpo_bv_issue_refinement
+            and (not is_nonexplicit_query)
+            and _allow_explicit_stpo_bv_issue_refinement(query, likely_families)
+        )
         if (
-            is_nonexplicit_query
+            (
+                is_nonexplicit_query
+                or allow_explicit_social_issue_refinement
+                or allow_explicit_stpo_bv_issue_refinement
+            )
             and enable_issue_phrase_refinement
             and enable_law_family_constraints
             and likely_families
         ):
             issue_groups = issue_phrase_groups(query, likely_families, max_groups=issue_phrase_max_groups)
+            allowed_issue_groups = {str(g).strip() for g in (issue_phrase_allow_group or []) if str(g).strip()}
+            if allowed_issue_groups:
+                issue_groups = [g for g in issue_groups if str(g) in allowed_issue_groups]
             issue_terms = issue_query_terms(
                 query,
                 likely_families,
                 max_groups=issue_phrase_max_groups,
                 max_terms=issue_phrase_max_terms,
             )
+            if allowed_issue_groups:
+                issue_terms = _issue_terms_for_groups(issue_groups, max_terms=issue_phrase_max_terms)
             if issue_terms:
                 issue_pack = build_issue_laws_query_pack(
                     query,
@@ -614,6 +820,19 @@ def run_split(
                 )
                 issue_sparse_items = boost_items_by_family(issue_sparse_items, likely_families, issue_phrase_boost)
                 issue_sparse_items = filter_items_by_family(issue_sparse_items, likely_families)
+                seed_groups: list[str] = []
+                if enable_issue_seed_citations and is_nonexplicit_query:
+                    seed_groups.extend(issue_groups)
+                if allow_explicit_stpo_bv_issue_refinement and enable_explicit_issue_seed_citations:
+                    seed_groups.extend([g for g in issue_groups if str(g).startswith("STPO:")])
+                allowed_seed_groups = {str(g).strip() for g in (issue_seed_allow_group or []) if str(g).strip()}
+                if allowed_seed_groups:
+                    seed_groups = [g for g in seed_groups if str(g) in allowed_seed_groups]
+                if seed_groups:
+                    issue_sparse_items = merge_retrieved_items(
+                        issue_sparse_items,
+                        _issue_seed_items(seed_groups, score=50.0),
+                    )
                 sparse_items = merge_retrieved_items(sparse_items, issue_sparse_items)
 
         sparse_laws_items = [x for x in sparse_items if x.source == "laws_de"]
@@ -796,9 +1015,15 @@ def run_split(
             relative_threshold=relative_threshold,
         )
         laws_final_rescue_citations = []
+        allow_explicit_social_final_rescue = bool(
+            (not is_nonexplicit_query)
+            and likely_families
+            and any(f in {"ATSG", "IVG"} for f in likely_families)
+            and len(rule_laws_items) == 0
+        )
         if (
             enable_laws_final_cut_calibration
-            and is_nonexplicit_query
+            and (is_nonexplicit_query or allow_explicit_social_final_rescue)
             and enable_law_family_constraints
             and likely_families
             and laws_final_fused_rescue_top_k > 0
@@ -880,21 +1105,34 @@ def run_split(
                 "law_family_query_terms": ";".join(family_terms),
                 "law_family_min_keep": int(law_family_min_keep),
                 "issue_phrase_refinement_enabled": int(
-                    is_nonexplicit_query
+                    (
+                        is_nonexplicit_query
+                        or allow_explicit_social_issue_refinement
+                        or allow_explicit_stpo_bv_issue_refinement
+                    )
                     and enable_issue_phrase_refinement
                     and enable_law_family_constraints
                     and bool(likely_families)
                 ),
+                "explicit_stpo_bv_issue_refinement_allowed": int(allow_explicit_stpo_bv_issue_refinement),
                 "issue_phrase_groups": ";".join(issue_groups),
+                "issue_phrase_allow_groups": ";".join(issue_phrase_allow_group or []),
                 "issue_phrase_query_terms": ";".join(issue_terms),
                 "issue_phrase_sparse_count": len({x.citation for x in issue_sparse_items}),
                 "issue_phrase_sparse_citations": ";".join([x.citation for x in issue_sparse_items]),
+                "issue_seed_citations_enabled": int(enable_issue_seed_citations and is_nonexplicit_query and bool(issue_groups)),
+                "issue_seed_allow_groups": ";".join(issue_seed_allow_group or []),
+                "explicit_issue_seed_citations_enabled": int(
+                    allow_explicit_stpo_bv_issue_refinement
+                    and enable_explicit_issue_seed_citations
+                    and bool([g for g in issue_groups if str(g).startswith("STPO:")])
+                ),
                 "laws_evidence_consistency_calibration_enabled": int(enable_laws_evidence_consistency_calibration),
                 "laws_evidence_top_n": int(laws_evidence_top_n),
                 "laws_evidence_rescored_laws": int(evidence_stats.get("rescored_laws", 0)),
                 "laws_final_cut_calibration_enabled": int(
                     enable_laws_final_cut_calibration
-                    and is_nonexplicit_query
+                    and (is_nonexplicit_query or allow_explicit_social_final_rescue)
                     and enable_law_family_constraints
                     and bool(likely_families)
                 ),
@@ -1005,6 +1243,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--law-family-boost", type=float, default=2.5)
     parser.add_argument("--law-family-min-keep", type=int, default=5)
     parser.add_argument("--enable-issue-phrase-refinement", type=parse_bool_flag, default=False)
+    parser.add_argument("--issue-phrase-allow-group", action="append", default=[])
+    parser.add_argument("--enable-issue-seed-citations", type=parse_bool_flag, default=False)
+    parser.add_argument("--issue-seed-allow-group", action="append", default=[])
+    parser.add_argument("--enable-explicit-stpo-bv-issue-refinement", type=parse_bool_flag, default=False)
+    parser.add_argument("--enable-explicit-issue-seed-citations", type=parse_bool_flag, default=False)
     parser.add_argument("--issue-phrase-top-k", type=int, default=24)
     parser.add_argument("--issue-phrase-boost", type=float, default=2.5)
     parser.add_argument("--issue-phrase-max-groups", type=int, default=4)
@@ -1102,6 +1345,11 @@ def main(argv: list[str] | None = None) -> None:
         law_family_boost=args.law_family_boost,
         law_family_min_keep=args.law_family_min_keep,
         enable_issue_phrase_refinement=args.enable_issue_phrase_refinement,
+        issue_phrase_allow_group=args.issue_phrase_allow_group,
+        enable_issue_seed_citations=args.enable_issue_seed_citations,
+        issue_seed_allow_group=args.issue_seed_allow_group,
+        enable_explicit_stpo_bv_issue_refinement=args.enable_explicit_stpo_bv_issue_refinement,
+        enable_explicit_issue_seed_citations=args.enable_explicit_issue_seed_citations,
         issue_phrase_top_k=args.issue_phrase_top_k,
         issue_phrase_boost=args.issue_phrase_boost,
         issue_phrase_max_groups=args.issue_phrase_max_groups,
@@ -1150,6 +1398,11 @@ def main(argv: list[str] | None = None) -> None:
         law_family_boost=args.law_family_boost,
         law_family_min_keep=args.law_family_min_keep,
         enable_issue_phrase_refinement=args.enable_issue_phrase_refinement,
+        issue_phrase_allow_group=args.issue_phrase_allow_group,
+        enable_issue_seed_citations=args.enable_issue_seed_citations,
+        issue_seed_allow_group=args.issue_seed_allow_group,
+        enable_explicit_stpo_bv_issue_refinement=args.enable_explicit_stpo_bv_issue_refinement,
+        enable_explicit_issue_seed_citations=args.enable_explicit_issue_seed_citations,
         issue_phrase_top_k=args.issue_phrase_top_k,
         issue_phrase_boost=args.issue_phrase_boost,
         issue_phrase_max_groups=args.issue_phrase_max_groups,
@@ -1236,6 +1489,11 @@ def main(argv: list[str] | None = None) -> None:
         "law_family_boost": args.law_family_boost,
         "law_family_min_keep": args.law_family_min_keep,
         "enable_issue_phrase_refinement": args.enable_issue_phrase_refinement,
+        "issue_phrase_allow_group": args.issue_phrase_allow_group,
+        "enable_issue_seed_citations": args.enable_issue_seed_citations,
+        "issue_seed_allow_group": args.issue_seed_allow_group,
+        "enable_explicit_stpo_bv_issue_refinement": args.enable_explicit_stpo_bv_issue_refinement,
+        "enable_explicit_issue_seed_citations": args.enable_explicit_issue_seed_citations,
         "issue_phrase_top_k": args.issue_phrase_top_k,
         "issue_phrase_boost": args.issue_phrase_boost,
         "issue_phrase_max_groups": args.issue_phrase_max_groups,

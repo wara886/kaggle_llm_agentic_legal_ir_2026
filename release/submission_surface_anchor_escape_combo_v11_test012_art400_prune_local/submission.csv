@@ -1,0 +1,41 @@
+﻿query_id,predicted_citations
+test_001,Art. 5 Abs. 1 ZPO;Art. 5 Abs. 2 ZPO;Art. 261 Abs. 1 ZPO;Art. 263 ZPO;Art. 10 IPRG;Art. 2 Abs. 3 URG;Art. 10 Abs. 2 URG;Art. 62 Abs. 1 URG;Art. 2 UWG;Art. 5 UWG;Art. 6 UWG;Art. 9 Abs. 1 UWG;Art. 100 Abs. 1 BGG
+test_002,Art. 83 Abs. 1 SVG;Art. 59 Abs. 1 SVG;Art. 58 Abs. 1 SVG;Art. 46 Abs. 1 OR;Art. 100 Abs. 1 BGG
+test_003,Art. 267a Abs. 1 OR;Art. 267a Abs. 3 OR;Art. 267a Abs. 2 OR;Art. 267 Abs. 1 OR;Art. 327b Abs. 3 OR;Art. 100 Abs. 1 BGG
+test_004,Art. 166 Abs. 2 SchKG;Art. 166 Abs. 1 SchKG;Art. 80 Abs. 2 SchKG;Art. 165 Abs. 2 SchKG;Art. 74 Abs. 2 SchKG;Art. 100 Abs. 1 BGG
+test_005,Art. 37 Abs. 1 SchKG;Art. 41 Abs. 1 SchKG;Art. 82 Abs. 1 SchKG;Art. 82 Abs. 2 SchKG;Art. 151 Abs. 1 SchKG;Art. 153 Abs. 2 SchKG;Art. 153a Abs. 1 SchKG;Art. 842 Abs. 1 ZGB;Art. 842 Abs. 2 ZGB;Art. 843 ZGB;Art. 847 Abs. 1 ZGB;Art. 860 Abs. 1 ZGB;Art. 860 Abs. 2 ZGB;Art. 864 Abs. 1 ZGB;Art. 864 Abs. 2 ZGB;Art. 116 Abs. 1 OR;Art. 116 Abs. 2 OR;Art. 100 Abs. 1 BGG
+test_006,Art. 5 Abs. 1 PrHG;Art. 4 Abs. 2 PrHG;Art. 1 Abs. 1 PrHG;Art. 4 Abs. 1 PrHG;Art. 1 Abs. 2 PrHG;Art. 100 Abs. 1 BGG
+test_007,Art. 413 Abs. 2 OR;Art. 111 OR;Art. 525 Abs. 2 OR;Art. 23 OR;Art. 82 OR;Art. 27 OR;Art. 100 Abs. 1 BGG
+test_008,Art. 276a Abs. 1 ZGB;Art. 276a Abs. 2 ZGB;Art. 278 Abs. 2 ZGB;Art. 25 Abs. 2 ZGB;Art. 301 Abs. 3 ZGB;Art. 133 Abs. 2 ZGB;Art. 100 Abs. 1 BGG
+test_009,Art. 25 IPRG;Art. 27 Abs. 1 IPRG;Art. 45 Abs. 2 IPRG;Art. 96 Abs. 1 IPRG;Art. 105 ZGB;Art. 400 Abs. 1 OR;Art. 100 Abs. 1 BGG
+test_010,Art. 398 Abs. 1 StPO;Art. 398 Abs. 2 StPO;Art. 212 Abs. 1 StPO;Art. 398 Abs. 5 StPO;Art. 398 Abs. 3 StPO;Art. 100 Abs. 1 BGG
+test_011,Art. 5 Abs. 1 IPRG;Art. 2 IPRG;Art. 38 Abs. 1 OR;Art. 39 Abs. 1 OR;Art. 39 Abs. 2 OR;Art. 39 Abs. 3 OR;Art. 100 Abs. 1 BGG
+test_012,Art. 400 Abs. 1 OR;Art. 400 Abs. 2 OR;Art. 100 Abs. 1 BGG
+test_013,Art. 17 Abs. 3 AVG;Art. 19 Abs. 2 AVG;Art. 19 Abs. 3 AVG;Art. 20 Abs. 1 AVG;Art. 20 Abs. 2 AVG;Art. 1 Abs. 1 AVEG;Art. 1a Abs. 1 AVEG;Art. 2 AVEG;Art. 356b Abs. 1 OR;Art. 357 Abs. 1 OR;Art. 358 OR;Art. 360a Abs. 1 OR;Art. 360b Abs. 1 OR;Art. 100 Abs. 1 BGG
+test_014,Art. 4 ATSG;Art. 6 Abs. 2 UVG;Art. 6 Abs. 3 UVG;Art. 64c Abs. 3 UVG;Art. 57 Abs. 1 UVG;Art. 64c Abs. 2 UVG;Art. 100 Abs. 1 BGG;Art. 6 Abs. 1 UVG
+test_015,Art. 173 Abs. 1 ZGB;Art. 406a Abs. 1 OR;Art. 328 Abs. 2 ZGB;Art. 406 OR;Art. 94 ZGB;Art. 119 ZGB;Art. 100 Abs. 1 BGG
+test_016,Art. 328 Abs. 2 ZGB;Art. 126 Abs. 3 ZGB;Art. 698 ZGB;Art. 128 ZGB;Art. 278 Abs. 2 ZGB;Art. 133 Abs. 3 ZGB;Art. 100 Abs. 1 BGG
+test_017,Art. 455 Abs. 2 OR;Art. 83 Abs. 2 OR;Art. 973i Abs. 3 OR;Art. 199 OR;Art. 406 OR;Art. 397 Abs. 1 OR;Art. 100 Abs. 1 BGG
+test_018,Art. 390 Abs. 2 ZGB;Art. 78 Abs. 1 131.225;Art. 67 Abs. 6 StGB;Art. 29a BV;Art. 390 Abs. 3 ZGB;Art. 29 Abs. 2 BV;Art. 100 Abs. 1 BGG
+test_019,Art. 298 Abs. 2 ZGB;Art. 328 Abs. 2 ZGB;Art. 117 Abs. 1 ZGB;Art. 278 Abs. 2 ZGB;Art. 298 Abs. 2bis ZGB;Art. 133 Abs. 2 ZGB;Art. 100 Abs. 1 BGG
+test_020,Art. 837 Abs. 1 ZGB;Art. 839 Abs. 1 ZGB;Art. 839 Abs. 2 ZGB;Art. 839 Abs. 3 ZGB;Art. 961 Abs. 1 ZGB;Art. 961 Abs. 2 ZGB;Art. 961 Abs. 3 ZGB;Art. 372 Abs. 1 OR;Art. 373 Abs. 1 OR;Art. 373 Abs. 2 OR;Art. 157 ZPO;Art. 183 Abs. 1 ZPO;Art. 187 Abs. 4 ZPO;Art. 100 Abs. 1 BGG
+test_021,Art. 398 Abs. 3 OR;Art. 399 Abs. 2 OR;Art. 399 Abs. 1 OR;Art. 399 Abs. 3 OR;Art. 398 Abs. 1 OR;Art. 157 OR;Art. 100 Abs. 1 BGG
+test_022,Art. 324 Abs. 3 ZGB;Art. 315a Abs. 3 ZGB;Art. 259 Abs. 1 ZGB;Art. 315a Abs. 2 ZGB;Art. 315 Abs. 1 ZGB;Art. 100 Abs. 1 BGG;Art. 46 IPRG;Art. 10 IPRG
+test_023,Art. 52 Abs. 1 AHVG;Art. 52 Abs. 2 AHVG;Art. 52 Abs. 3 AHVG;Art. 52 Abs. 4 AHVG;Art. 29 Abs. 2 BV;Art. 100 Abs. 1 BGG
+test_024,Art. 117 Abs. 2 ZGB;Art. 407c Abs. 2 ZPO;Art. 117 Abs. 3 ZGB;Art. 450f ZGB;Art. 200 Abs. 3 ZGB;Art. 160 Abs. 2 ZPO;Art. 100 Abs. 1 BGG
+test_025,Art. 195 Abs. 1 ZGB;Art. 206 Abs. 2 ZGB;Art. 217 Abs. 2 ZGB;Art. 201 Abs. 2 ZGB;Art. 205 Abs. 1 ZGB;Art. 117 Abs. 1 ZGB;Art. 100 Abs. 1 BGG
+test_026,Art. 90 Abs. 1 ZGB;Art. 223 Abs. 1 ZGB;Art. 133 Abs. 1 ZGB;Art. 90 Abs. 3 ZGB;Art. 298 Abs. 2bis ZGB;Art. 298b Abs. 3bis ZGB;Art. 100 Abs. 1 BGG
+test_027,Art. 298b Abs. 3ter ZGB;Art. 296 Abs. 1 ZGB;Art. 298b Abs. 3bis ZGB;Art. 315b Abs. 2 ZGB;Art. 296 Abs. 2 ZGB;Art. 296 Abs. 3 ZGB;Art. 100 Abs. 1 BGG
+test_028,Art. 58 Abs. 1 OR;Art. 58 Abs. 2 OR;Art. 44 Abs. 1 OR;Art. 100 Abs. 1 BGG
+test_029,Art. 390 Abs. 1 ZGB;Art. 188 Abs. 2 ZPO;Art. 181 Abs. 3 ZPO;Art. 119 Abs. 4 ZPO;Art. 390 Abs. 2 ZGB;Art. 100 Abs. 1 BGG
+test_030,Art. 278 Abs. 2 ZGB;Art. 390 Abs. 2 ZGB;Art. 323 Abs. 2 ZGB;Art. 219 Abs. 4 ZGB;Art. 612a Abs. 3 ZGB;Art. 276a Abs. 2 ZGB;Art. 100 Abs. 1 BGG
+test_031,Art. 278 Abs. 2 ZGB;Art. 277 Abs. 1 ZGB;Art. 290 Abs. 1 ZGB;Art. 276 Abs. 3 ZGB;Art. 323 Abs. 2 ZGB;Art. 100 Abs. 1 BGG;Art. 125 Abs. 1 ZGB;Art. 125 Abs. 2 ZGB
+test_032,Art. 221 Abs. 1 StPO;Art. 439 Abs. 3 StPO;Art. 390 Abs. 2 ZGB;Art. 212 Abs. 1 StPO;Art. 236 Abs. 1 StPO;Art. 154 Abs. 5 StPO;Art. 100 Abs. 1 BGG
+test_033,Art. 9 UVG;Art. 9 Abs. 1 UVG;Art. 9 Abs. 2 UVG;Art. 9 Abs. 3 UVG;Art. 6 Abs. 1 UVG;Art. 14 UVV;Art. 43 Abs. 1 ATSG;Art. 44 Abs. 1 ATSG;Art. 100 Abs. 1 BGG
+test_034,Art. 839 Abs. 1 ZGB;Art. 839 Abs. 2 ZGB;Art. 839 Abs. 4 ZGB;Art. 839 Abs. 5 ZGB;Art. 839 Abs. 3 ZGB;Art. 100 Abs. 1 BGG
+test_035,Art. 263 ZPO;Art. 89 IPRG;Art. 100 Abs. 1 BGG
+test_036,Art. 255 Abs. 1 StPO;Art. 197 Abs. 1 StPO;Art. 101 Abs. 1 StPO;Art. 255 Abs. 2 StPO;Art. 256 Abs. 1 StPO;Art. 257 StPO;Art. 255 Abs. 1bis StPO;Art. 100 Abs. 1 BGG
+test_037,Art. 1 Abs. 1 MSchG;Art. 2 MSchG;Art. 3 Abs. 1 MSchG;Art. 13 Abs. 1 MSchG;Art. 13 Abs. 2 MSchG;Art. 55 Abs. 1 MSchG;Art. 59 MSchG;Art. 2 UWG;Art. 3 Abs. 1 UWG;Art. 9 Abs. 1 UWG;Art. 9 Abs. 2 UWG;Art. 100 Abs. 1 BGG
+test_038,Art. 41 Abs. 1 OR;Art. 42 Abs. 1 OR;Art. 42 Abs. 2 OR;Art. 46 Abs. 1 OR;Art. 47 OR;Art. 49 Abs. 1 OR;Art. 8 ZGB;Art. 100 Abs. 1 BGG
+test_039,Art. 814 Abs. 4 OR;Art. 731b Abs. 3 OR;Art. 455 Abs. 2 OR;Art. 2 Abs. 3 OR;Art. 418e Abs. 2 OR;Art. 27 OR;Art. 100 Abs. 1 BGG
+test_040,Art. 176 Abs. 2 ZGB;Art. 124d ZGB;Art. 105 ZGB;Art. 167 ZGB;Art. 175 ZGB;Art. 100 Abs. 1 BGG;Art. 176 Abs. 1 ZGB

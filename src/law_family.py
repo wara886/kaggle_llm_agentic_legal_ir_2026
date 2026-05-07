@@ -211,6 +211,31 @@ FAMILY_CUES: dict[str, list[tuple[str, int]]] = {
         ("residence permit", 4),
         ("deportation", 4),
     ],
+    "ATSG": [
+        ("lpga", 8),
+        ("general part of social insurance law", 8),
+        ("social insurance", 5),
+    ],
+    "IVG": [
+        ("lai", 8),
+        ("invalidity insurance", 7),
+        ("vocational rehabilitation", 6),
+        ("rehabilitation measure", 5),
+        ("adapted work", 4),
+    ],
+    "BGG": [
+        ("bgg", 8),
+        ("federal supreme court", 4),
+        ("constitutional complaint", 4),
+        ("public law appeal", 4),
+    ],
+    "IPRG": [
+        ("iprg", 8),
+        ("private international law", 6),
+        ("applicable law", 4),
+        ("foreign law", 3),
+        ("cross-border", 3),
+    ],
 }
 
 
@@ -507,6 +532,41 @@ ISSUE_PHRASE_RULES: dict[str, list[dict]] = {
             "terms": ["Sicherstellung", "Vollstreckung", "Verwertung", "Betreibung"],
         },
     ],
+    "ATSG": [
+        {
+            "name": "social_insurance_work_capacity",
+            "cues": [
+                "social insurance",
+                "general part of social insurance law",
+            ],
+            "terms": [
+                "Sozialversicherung",
+                "Arbeitsunfaehigkeit",
+                "Erwerbsunfaehigkeit",
+                "medizinische Akten",
+                "Leistungsanspruch",
+            ],
+        },
+    ],
+    "IVG": [
+        {
+            "name": "invalidity_rehabilitation",
+            "cues": [
+                "invalidity insurance",
+                "vocational rehabilitation",
+                "rehabilitation measure",
+                "adapted work",
+                "lai",
+            ],
+            "terms": [
+                "Invalidenversicherung",
+                "Eingliederungsmassnahmen",
+                "berufliche Massnahmen",
+                "angepasste Taetigkeit",
+                "Erwerbsunfaehigkeit",
+            ],
+        },
+    ],
 }
 
 
@@ -532,6 +592,10 @@ def explicit_families(query: str) -> list[str]:
         ("STPO", r"\bcriminal procedure code\b"),
         ("STGB", r"\bcriminal code\b"),
         ("ZPO", r"\bcivil procedure\b"),
+        ("IVG", r"\blai\b"),
+        ("ATSG", r"\blpga\b"),
+        ("ATSG", r"\bgeneral part of social insurance law\b"),
+        ("IVG", r"\binvalidity insurance\b"),
     ]
     for fam, pattern in law_names:
         if fam not in seen and re.search(pattern, text, re.I):

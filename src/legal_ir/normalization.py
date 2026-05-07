@@ -19,6 +19,9 @@ def normalize_text(value: str) -> str:
 def normalize_citation(citation: str) -> str:
     text = normalize_text(citation)
     text = PUNCT_TRIM_RE.sub("", text)
+    # Align common multilingual aliases to the canonical statute family used in corpus citations.
+    text = re.sub(r"\bLAI\b", "IVG", text, flags=re.I)
+    text = re.sub(r"\bLPGA\b", "ATSG", text, flags=re.I)
     text = re.sub(r"\bArt\s+\.", "Art.", text)
     text = re.sub(r"\bAbs\s+\.", "Abs.", text)
     text = re.sub(r"\bE\s+\.", "E.", text)

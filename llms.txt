@@ -1,0 +1,48 @@
+# Kaggle LLM Agentic Legal IR 2026
+
+Repository: https://github.com/wara886/kaggle_llm_agentic_legal_ir_2026
+
+Purpose: legal citation retrieval for a Kaggle Swiss legal IR competition. The system maps case queries to relevant legal citations using hybrid retrieval, reranking, citation parsing, law-family auditing, and targeted low-spillover corrections.
+
+Current best:
+- Public score: 0.25015
+- Best submission: release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv
+- Note: v21-v25 were boundary checks and did not replace v20 tight.
+
+Read first:
+- README.md
+- docs/project_core_manifest.md
+- docs/current_progress_summary.md
+- docs/experiment_log.md
+- docs/next_optimization_handoff.md
+- docs/kaggle_legal_ir_project_resume_review_v2_cn.md
+
+Main execution:
+- scripts/run_silver_baseline_v0.py
+- scripts/run_qwen3_reranker_module_ablation.py
+- scripts/run_targeted_test_patch.py
+- scripts/run_surface_family_audit.py
+- scripts/evaluate_submission_official_strict.py
+
+Core modules:
+- src/legal_ir/corpus_builder.py
+- src/legal_ir/data_loader.py
+- src/retrieval_sparse.py
+- src/retrieval_dense.py
+- src/retrieval_rules.py
+- src/fusion.py
+- src/rerank.py
+- src/law_family.py
+- src/query_family.py
+- src/citation_normalizer.py
+- src/legal_ir/normalization.py
+
+Data boundary:
+- data_raw/, artifacts/, outputs/, and logs/ are local-only and intentionally ignored.
+- The public repository contains code, docs, and selected submission CSVs, not Kaggle raw data.
+
+Suggested web search queries:
+- site:github.com/wara886/kaggle_llm_agentic_legal_ir_2026 llms.txt
+- site:github.com/wara886/kaggle_llm_agentic_legal_ir_2026 run_silver_baseline_v0.py
+- site:github.com/wara886/kaggle_llm_agentic_legal_ir_2026 law_family.py
+- site:github.com/wara886/kaggle_llm_agentic_legal_ir_2026 experiment_log.md
