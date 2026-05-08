@@ -675,3 +675,21 @@
 - Prediction count: `7 -> 10`.
 - Decision: do not upgrade.
 - Lesson: multi-issue ZGB repairs are less reliable when the replacement set becomes wide. Continue prioritizing tight institution repairs such as v27/v29.
+
+## 2026-05-08 prize criteria review
+
+- Current public best remains v29 at `0.28669`.
+- Project status is reclassified as half-success:
+  - successful as leaderboard-oriented residual audit;
+  - insufficient as a final prize-core solution under reproducibility / scalability / generalization criteria.
+- Reason:
+  - v20/v27/v29 effectively used Codex/GPT as a domain expert to annotate visible `test.csv` rows and hand-write citation repairs;
+  - this is reproducible on the same file but not scalable to arbitrary private queries.
+- New direction:
+  - freeze row-level test patching as diagnostic material;
+  - convert the discovered failure mode, same-family article-institution drift, into an automatic module;
+  - build issue decomposition, legal-institution routing, and `laws_de.csv` grounded citation verification;
+  - evaluate on validation plus train-derived pseudo-hidden splits before any new leaderboard submission.
+- New documentation:
+  - `docs/prize_compliance_adjustment_plan_cn.md`
+  - `docs/kaggle_legal_ir_project_resume_review_v2_cn.md` section 19

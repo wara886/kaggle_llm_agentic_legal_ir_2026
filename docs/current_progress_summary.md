@@ -444,3 +444,28 @@ The highest-yield pattern is now very specific: broad family already correct, bu
 Boundary:
 
 v28 and v30 show that legally plausible procedure or multi-issue family-law repairs can be flat when prediction count grows or hidden gold only covers part of the issue set. Prefer tight OR-internal institution repairs over broad ZGB/ZPO expansions.
+
+## 2026-05-08 prize-compliance adjustment
+
+The current public best remains:
+
+`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
+
+Public score: `0.28669`.
+
+However, after reviewing the competition prize criteria, this line should be treated as leaderboard optimization / residual audit rather than the final prize-core solution. The reason is simple: v20/v27/v29 improved public score by using Codex/GPT as a legal-domain reviewer over visible `test.csv` rows, then hardcoding row-level citation repairs. That is reproducible for the same public test file, but it is not sufficiently scalable or generalizable for hidden private queries.
+
+What stays valuable:
+
+- v20/v27/v29 identify a real system failure mode: broad family can be correct while the legal institution and article cluster are wrong.
+- These rows can become teacher labels for an automatic detector of same-family institution drift.
+- The “what / why / how” explanations remain useful as error taxonomy and ablation evidence.
+
+What changes next:
+
+- Stop expanding `query_id -> citation list` as the main optimization path.
+- Build a prize-compliant branch that uses train/val/laws/court, automatic issue decomposition, legal-institution routing, and `laws_de.csv` grounded citation verification.
+- Evaluate on validation plus a train-derived pseudo-hidden split before using leaderboard feedback.
+- Keep per-sample LLM cost bounded and document the command path so another participant could reproduce it.
+
+Reference plan: `docs/prize_compliance_adjustment_plan_cn.md`.

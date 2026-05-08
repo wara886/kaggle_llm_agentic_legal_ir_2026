@@ -97,3 +97,30 @@
 - 不提交近重复微调。
 - 不因单个 surface proxy 变好就提交；必须结合题面、训练集、法律库可用性和预测条数。
 - 最新一轮已经证明：瓶颈后要回到 `train.csv/test.csv/laws_de.csv` 的硬证据，优先找单行 wrong-family 修复；干净剪枝仍可做，但不能把“条数下降”单独当作提交理由。
+
+## 2026-05-08 获奖条件校准
+
+当前 `0.28669` v29 是半成功经验，而不是最终 prize-core solution。它说明 same-family article-institution drift 是真实高收益失败模式；但 v20/v27/v29 的实现方式仍是对可见 `test.csv` 的逐行 LLM-assisted audit 和 hand patch。按比赛截图里的可复现、可扩展、可泛化标准，后续不应继续扩大 `query_id -> citation list` patch table。
+
+后续主线改成两条：
+
+- `leaderboard_patch`：保留 v29 作为公开榜探索、误差分析和 teacher label 来源。
+- `prize_compliant`：禁止 test-specific citation patch；只使用 train/val/laws/court、自动规则、自动模型推理和可复现生成数据。
+
+下一轮优先任务：
+
+1. 新建或切换到 prize-compliant 实验路径，不再先找 v31/v32 单行 test patch。
+2. 从 `train.csv` 自动挖掘 `(issue phrase, legal institution, citation cluster)`，重点覆盖 v20/v27/v29 暴露出的 OR/ZGB 内部制度错位。
+3. 建立 pseudo-hidden split，用 topic / legal family / legal institution 分组切分，而不是只看 public leaderboard。
+4. 写结构化 issue decomposer，让 LLM/规则对任意 query 输出 `issues`, `families`, `institutions`, `must_keep_explicit_citations`, `candidate_article_keywords`。
+5. 最终 citation 必须由 `laws_de.csv` 检索和校验；LLM 只能解释、打分、排序，不能直接写死最终答案。
+
+完整调整计划见：`docs/prize_compliance_adjustment_plan_cn.md`。
+
+## 新开对话建议指令（获奖条件版本）
+
+```text
+请在 h:\cord\kaggle_llm_agentic_legal_ir_2026 继续 Kaggle legal IR 项目，但把 v20/v27/v29 当作半成功的误差标注经验，而不是继续手写 test patch。
+先回读 docs/current_progress_summary.md、docs/next_optimization_handoff.md、docs/prize_compliance_adjustment_plan_cn.md 和 docs/kaggle_legal_ir_project_resume_review_v2_cn.md。
+后续优先实现 prize-compliant 方案：用 train/laws/court 和可复现代码做 issue decomposition、legal-institution routing、laws_de-grounded citation verification，并用 pseudo-hidden split 评估。
+```

@@ -9,6 +9,8 @@
 最新同分验证提交：`release/submission_surface_anchor_escape_combo_v30_test026_family_property_maintenance_local/submission.csv`  
 说明：v27 和 v29 继续沿 same-family article-institution repair 路线，将 public 从 `0.25015 -> 0.26669 -> 0.28669`；v28/v30 持平，因此当前主基线采用带来实际增量的 v29。
 
+获奖条件校准：当前 `0.28669` 版本应被视为 **leaderboard optimization / 半成功经验**，而不是最终 prize-core solution。原因是后期 v20/v27/v29 主要依赖对可见 `test.csv` 的逐行 LLM-assisted legal audit 和 hand patch，虽然能揭示系统失败类型并提升 public score，但不满足截图中强调的可扩展、泛化和对完全私有 query 的自动推理要求。后续主线需要把这些 patch 反向蒸馏成可复现的自动模块，而不是继续扩大 test-specific patch table。
+
 分数提升主线：
 
 ```text
@@ -1119,3 +1121,75 @@ Kaggle public：`0.28669`，相对 v29 持平。
 2. **有效做法**：先做 issue decomposition，再选择最小 article cluster；保留题面显式 anchor，删除同法族但错制度尾巴。
 3. **边界**：纯程序证据修复和多争点宽家庭法修复即使法理合理，也可能持平。代表：v28、v30。
 4. **下一步**：继续扫 OR/ZGB 中 family 已对但制度错位的行，尤其当前答案含经纪、婚姻成立、亲权、借贷等明显不贴题尾巴，而题面有更具体制度名的样本。
+
+## 19. 获奖条件反思：从 test patch 转向可泛化系统
+
+### 当前结论
+
+如果只看 public leaderboard，v20/v27/v29 是成功的；如果按截图中的获奖条件看，它们只能算半成功经验。它们说明我们找到了真实失败类型：系统能进对 broad family，却无法稳定在同一法族内选对 legal institution 和 article cluster。但这些版本本身仍然是对可见 `test.csv` 的逐行修复，不应该被包装成可泛化的最终方案。
+
+这件事要诚实拆开：
+
+- 可复现：patch table 和生成脚本当然可以复现同一份 `test.csv` 的提交。
+- 可扩展：不可扩展。每个新 query 都需要 Codex/GPT 或人类重新读题、拆争点、指定条文。
+- 可泛化：弱。对完全私有 query，写死的 `test_007/test_021/test_015` 修复不会触发；真正可泛化的只有它们背后的抽象失败模式。
+
+因此，后期高分不是“模型自动学会了瑞士法律 IR”，而是我们让 Codex/GPT 充当领域专家，对测试样本做了 LLM-assisted annotation / adjudication。这在项目复盘上有价值，因为它像误差标注一样揭示系统缺陷；但从比赛获奖角度，它不应作为最终主解。
+
+### 为什么仍然有价值
+
+这些 patch 不是要丢掉，而是作为诊断数据使用。它们告诉我们主系统缺了三类能力：
+
+1. **Issue decomposition**：把一个长 query 拆成若干法律争点，例如 `medical mandate -> duty of care -> contractual liability -> fee/refund`。
+2. **Legal institution routing inside family**：在 OR 内区分 mandate、brokerage、carriage、simple partnership；在 ZGB 内区分 marriage validity、maintenance、adult protection、co-ownership。
+3. **Article-cluster selection**：不是召回一堆同 family 条文，而是为每个争点选最小可解释 citation set。
+
+这些能力如果变成自动模块，就可能满足获奖条件；如果继续手写 query-id patch，就只是在优化公开榜。
+
+完整落地计划已单独写入：`docs/prize_compliance_adjustment_plan_cn.md`。后续应优先实现该计划，而不是继续追加 v31/v32 式的可见测试集 patch。
+
+### 后续调整原则
+
+后续应建立两条明确分支：
+
+- `leaderboard_patch`：保留当前 v29 作为公开榜探索和错误分析材料。
+- `prize_compliant`：禁止使用 `query_id -> citation list` 的 test-specific patch；只允许使用 train/val/laws/court 和可复现代码生成规则。
+
+`prize_compliant` 分支的提交应该满足：
+
+1. 不读取 `test.csv` 后人工写死具体 query 的答案。
+2. 所有规则都基于可解释的文本特征、citation grammar、train-derived patterns 或模型推理。
+3. LLM 可以参与，但必须作为自动推理组件运行在任意 query 上，而不是逐行人工审题。
+4. 每个样本推理成本可控，目标不超过比赛要求的每样本 10 美元。
+5. 用 val 和 train-derived pseudo-hidden split 评估，不再把 public leaderboard 当主要反馈。
+
+### 可泛化改造路线
+
+下一步不再继续扩大 v31/v32 这类 test patch，而是把 v20/v27/v29 抽象为自动 pipeline：
+
+```text
+query
+  -> issue decomposition
+  -> legal family + legal institution routing
+  -> within-family article candidate generation
+  -> laws_de-grounded article cluster verification
+  -> calibrated final citation set
+```
+
+具体实现可以分三步：
+
+1. 用 train gold 自动挖掘 `(issue phrase, legal institution, citation cluster)` 映射，例如 `freight forwarder -> Art. 439/447/449 OR`、`medical mandate -> Art. 394/398 OR`。
+2. 写一个 LLM/规则混合的 issue decomposer，让它输出结构化 JSON：`issues`, `families`, `institutions`, `must_keep_explicit_citations`, `candidate_article_keywords`。
+3. 只从 `laws_de.csv` 检索和验证候选，不允许直接让 LLM 生成最终 citation；LLM 只能解释和打分，最终 citation 必须存在于 corpus 或通过 normalizer 映射。
+
+这样调整后，前面的高分 patch 就变成了“teacher labels / audit labels”，用于指导自动系统设计，而不是最终答案本身。
+
+### 简历叙事修正
+
+更稳妥的简历表达不是“我把 public score 提到 0.28669 的方案可获奖”，而是：
+
+```text
+构建 Swiss legal citation retrieval pipeline，并通过 LLM-assisted residual audit 发现 same-family article-institution drift 等关键失败模式；将 leaderboard patch 作为误差标注材料，进一步设计可泛化的 issue decomposition 与 legal-institution routing 模块。
+```
+
+这比单纯吹高分更真实，也更能经得起面试追问。
