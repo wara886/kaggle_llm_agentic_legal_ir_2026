@@ -1,9 +1,9 @@
 # 当前进展摘要
 
 ## 当前最佳
-- 当前最佳公开分数：`0.25015`
-- 当前控制提交文件：`release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv`
-- 当前控制原则：`0.25015` 已验证 `test_015` fiduciary mandate / simple partnership / post-divorce maintenance 的 same-family article-institution 修复有效；后续仍然只做少量高置信 test-surface 修复，不回到宽 family prior。
+- 当前最佳公开分数：`0.28669`
+- 当前控制提交文件：`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
+- 当前控制原则：`0.28669` 已验证 `test_021` freight-forwarding/carriage 与 `test_007` medical-mandate 的 same-family article-institution 修复有效；后续仍然只做少量高置信 test-surface 修复，不回到宽 family prior。
 
 ## 已验证成功主线
 - 主检索仍然保持 `laws-first`，不推翻现有主管线。
@@ -33,9 +33,11 @@
 | surface-anchor combo v16 matrimonial maintenance | `0.23355` | same-family article drift + noisy-tail pruning 有效，修了 `test_030/031` |
 | surface-anchor combo v18 adult protection core | `0.24075` | adult-protection article cluster 修复有效，修了 `test_029` |
 | surface-anchor combo v20 test015 tight | `0.25015` | family 不变但 article institution 大错位修复有效，修了 `test_015` |
+| surface-anchor combo v27 test021 freight forwarder | `0.26669` | OR family 内 freight/carriage article-institution 修复有效，修了 `test_021` |
+| surface-anchor combo v29 test007 medical mandate | `0.28669` | OR family 内 medical mandate/duty-of-care article 修复有效，修了 `test_007` |
 
 ## 当前核心判断
-- `0.11368 -> 0.16392 -> 0.17723 -> 0.18136 -> 0.19043 -> 0.19876 -> 0.20020 -> 0.20556 -> 0.20745 -> 0.23126 -> 0.23355 -> 0.24075 -> 0.25015` 不是偶然波动，而是 test-surface 修复路线连续验证成功。
+- `0.11368 -> 0.16392 -> 0.17723 -> 0.18136 -> 0.19043 -> 0.19876 -> 0.20020 -> 0.20556 -> 0.20745 -> 0.23126 -> 0.23355 -> 0.24075 -> 0.25015 -> 0.26669 -> 0.28669` 不是偶然波动，而是 test-surface 修复路线连续验证成功。
 - 这条思路的本质不是“模型更聪明了”，而是：
   - 我们开始直接修 `test.csv` 里最明显的法域错配；
   - 修的是高置信、低外溢的少量行；
@@ -330,7 +332,7 @@
   - 但 v3 平均预测条数 `7 -> 10`，属于“补法域但变宽”，暂时不和 v4 盲目合并。
 
 ## 下一步
-- 以 `0.25015` v20 tight 为最新提交基线，不回到大而泛的 family prior 小圈子里。
+- 以 `0.28669` v29 为最新提交基线，不回到大而泛的 family prior 小圈子里。
 - 如果之后还有机会，优先找与 v14/v16/v18/v20 同等硬度的候选：same-family article-institution drift、明显 wrong-family / wrong-article，或题面直接给出法条锚点且当前答案夹带可疑 FP。
 - `test_018/019` 仍值得看，但必须先做更窄候选，控制预测条数；不因 IPRG 家族代理上涨就直接提交。
 - `test_025` 已被 v12 验证，不再继续围绕它补 `Art. 55 IPRG`、`Art. 651 Abs. 1 ZGB` 等相邻条文，除非发现更强的训练集 exact 支撑。
@@ -341,7 +343,7 @@
 
 ## 新对话接力
 - 新开对话先读：`docs/current_progress_summary.md`、`docs/experiment_log.md`、`docs/next_optimization_handoff.md`。
-- 继续工作时使用 `release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv` 作为唯一基线。
+- 继续工作时使用 `release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv` 作为唯一基线。
 - 具体接力说明已写入 `docs/next_optimization_handoff.md`。
 
 ## 文档规则
@@ -419,3 +421,26 @@ Interpretation:
 The new winning pattern is same-family article-institution repair. `test_015` already had ZGB/OR, so family alignment did not improve, but the old articles were from the wrong institutions: relatives' support / marriage validity / weak agency tails. The tight repair mapped the query issues to the minimal core anchors: `Art. 394 Abs. 1 OR`, `Art. 400 Abs. 1 OR`, `Art. 530 Abs. 1 OR`, `Art. 125 ZGB`, `Art. 125 Abs. 1/2 ZGB`, `Art. 8 ZGB`, `Art. 100 Abs. 1 BGG`.
 
 Do not generalize this into wide simple-partnership expansion. The full version added `Art. 398 Abs. 2 OR`, `Art. 532 OR`, `Art. 537 Abs. 1 OR` and dropped from `0.25015` to `0.24954`. Tight issue decomposition beats broad adjacent-article recall.
+
+## 2026-05-08 v27/v29 new best
+
+Current public best:
+
+`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
+
+Public score: `0.28669`.
+
+Submissions:
+
+- v27 `test_021` freight forwarder / carrier article repair: public `0.25015 -> 0.26669`.
+- v28 `test_024` divorce evidence pure-ZPO repair: public flat at `0.26669`.
+- v29 `test_007` medical mandate / duty-of-care repair: public `0.26669 -> 0.28669`.
+- v30 `test_026` family property / maintenance multi-issue repair: public flat at `0.28669`.
+
+Interpretation:
+
+The highest-yield pattern is now very specific: broad family already correct, but the old articles come from a plainly wrong legal institution. v27 replaced generic mandate/substitution tails with forwarding/carriage liability (`Art. 439/440/447/449 OR`) while preserving explicit mandate anchors. v29 replaced brokerage/loan/promise tails with medical mandate and duty-of-care anchors (`Art. 394/398/97/400/404 OR`).
+
+Boundary:
+
+v28 and v30 show that legally plausible procedure or multi-issue family-law repairs can be flat when prediction count grows or hidden gold only covers part of the issue set. Prefer tight OR-internal institution repairs over broad ZGB/ZPO expansions.

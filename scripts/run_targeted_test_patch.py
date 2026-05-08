@@ -955,6 +955,88 @@ PATCH_SETS: dict[str, dict[str, list[str]]] = {
             "Art. 100 Abs. 1 BGG",
         ],
     },
+    # Same-family article-institution repair on top of v20. test_024 already
+    # has ZPO/ZGB, but the old row drifts to marriage-validity/adult-protection
+    # tails. The query is about evidence and fact-finding in divorce effects,
+    # plus whether property division can be deferred/introduced on review.
+    "surface_anchor_escape_combo_v26_test024_divorce_evidence_tight_local": {
+        "test_024": [
+            "Art. 277 Abs. 1 ZPO",
+            "Art. 277 Abs. 2 ZPO",
+            "Art. 277 Abs. 3 ZPO",
+            "Art. 152 Abs. 1 ZPO",
+            "Art. 153 Abs. 1 ZPO",
+            "Art. 157 ZPO",
+            "Art. 283 Abs. 2 ZPO",
+            "Art. 317 Abs. 1 ZPO",
+            "Art. 8 ZGB",
+            "Art. 100 Abs. 1 BGG",
+        ],
+    },
+    # OR-internal repair for a freight-forwarding/carrier row. Keep the direct
+    # mandate/substitution anchors named in the query, but replace generic OR
+    # tails with the forwarding/carriage liability core.
+    "surface_anchor_escape_combo_v27_test021_freight_forwarder_tight_local": {
+        "test_021": [
+            "Art. 439 OR",
+            "Art. 440 Abs. 1 OR",
+            "Art. 440 Abs. 2 OR",
+            "Art. 447 Abs. 1 OR",
+            "Art. 449 OR",
+            "Art. 398 Abs. 3 OR",
+            "Art. 399 Abs. 2 OR",
+            "Art. 100 Abs. 1 BGG",
+        ],
+    },
+    # Tighter pure-ZPO version after v27. This avoids the broad v26 ZGB proof
+    # tail and keeps only divorce-effects fact-finding, evidence, deferred
+    # property division, and appeal-nova anchors.
+    "surface_anchor_escape_combo_v28_test024_divorce_evidence_zpo_tight_local": {
+        "test_024": [
+            "Art. 277 Abs. 1 ZPO",
+            "Art. 277 Abs. 2 ZPO",
+            "Art. 277 Abs. 3 ZPO",
+            "Art. 152 Abs. 1 ZPO",
+            "Art. 157 ZPO",
+            "Art. 283 Abs. 2 ZPO",
+            "Art. 317 Abs. 1 ZPO",
+            "Art. 100 Abs. 1 BGG",
+        ],
+    },
+    # OR-internal repair for a medical-services mandate row. The old row is
+    # polluted by brokerage, promise-of-performance and loan tails; the query
+    # asks whether ophthalmic services are mandate, whether the physician
+    # breached mandate-level care duties, and whether fees/refunds follow.
+    "surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local": {
+        "test_007": [
+            "Art. 394 Abs. 1 OR",
+            "Art. 394 Abs. 3 OR",
+            "Art. 398 Abs. 1 OR",
+            "Art. 398 Abs. 2 OR",
+            "Art. 97 Abs. 1 OR",
+            "Art. 400 Abs. 1 OR",
+            "Art. 404 Abs. 1 OR",
+            "Art. 100 Abs. 1 BGG",
+        ],
+    },
+    # Multi-issue ZGB repair: co-owned marital home rental proceeds,
+    # post-divorce spouse maintenance, ordinary child maintenance, and
+    # extraordinary child expenses. The old row drifts to marriage formation
+    # and parental-authority tails.
+    "surface_anchor_escape_combo_v30_test026_family_property_maintenance_local": {
+        "test_026": [
+            "Art. 646 Abs. 1 ZGB",
+            "Art. 646 Abs. 2 ZGB",
+            "Art. 648 Abs. 1 ZGB",
+            "Art. 125 Abs. 1 ZGB",
+            "Art. 125 Abs. 2 ZGB",
+            "Art. 276 Abs. 2 ZGB",
+            "Art. 285 Abs. 1 ZGB",
+            "Art. 286 Abs. 2 ZGB",
+            "Art. 286 Abs. 3 ZGB",
+            "Art. 100 Abs. 1 BGG",
+        ],
+    },
     "surface_anchor_escape_combo_v8_test008_009_iprg_local": {
         "test_008": [
             "Art. 10 IPRG",

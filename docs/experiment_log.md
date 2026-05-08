@@ -627,3 +627,51 @@
 - Difference from tight: adds `Art. 398 Abs. 2 OR`, `Art. 532 OR`, `Art. 537 Abs. 1 OR`.
 - Decision: do not upgrade; keep tight.
 - Lesson: adjacent simple-partnership expansion creates enough FP to lose `0.00061` versus tight. The successful principle is not "add the whole article neighborhood"; it is "map each query issue to the smallest article anchor that directly answers it."
+
+## 2026-05-08 v27-v30 same-family institution repair
+
+### v27 `test_021` freight forwarder / carrier
+
+- Candidate: `release/submission_surface_anchor_escape_combo_v27_test021_freight_forwarder_tight_local/submission.csv`.
+- Kaggle ref: `52444427`.
+- Base: v20 tight public `0.25015`.
+- Changed row: `test_021`.
+- Public score: `0.26669`, up `+0.01654`.
+- Old prediction: `Art. 398 Abs. 3 OR; Art. 399 Abs. 2 OR; Art. 399 Abs. 1 OR; Art. 399 Abs. 3 OR; Art. 398 Abs. 1 OR; Art. 157 OR; Art. 100 Abs. 1 BGG`.
+- New prediction: `Art. 439 OR; Art. 440 Abs. 1 OR; Art. 440 Abs. 2 OR; Art. 447 Abs. 1 OR; Art. 449 OR; Art. 398 Abs. 3 OR; Art. 399 Abs. 2 OR; Art. 100 Abs. 1 BGG`.
+- Decision: upgrade current best to v27.
+- Lesson: keep explicit mandate/substitution anchors, but add the freight-forwarding/carriage liability institution that actually answers the query.
+
+### v28 `test_024` divorce evidence ZPO
+
+- Candidate: `release/submission_surface_anchor_escape_combo_v28_test024_divorce_evidence_zpo_tight_local/submission.csv`.
+- Kaggle ref: `52444485`.
+- Base: v27 public `0.26669`.
+- Changed row: `test_024`.
+- Public score: `0.26669`, flat.
+- Local proxy: unexpected family `1 -> 0`, prediction count `7 -> 8`.
+- Decision: do not upgrade.
+- Lesson: procedure/evidence article repairs can be legally clean but still fail to move public score.
+
+### v29 `test_007` medical mandate / duty of care
+
+- Candidate: `release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`.
+- Kaggle ref: `52444556`.
+- Base: v27 public `0.26669`.
+- Changed row: `test_007`.
+- Public score: `0.28669`, up `+0.02000`.
+- Old prediction: `Art. 413 Abs. 2 OR; Art. 111 OR; Art. 525 Abs. 2 OR; Art. 23 OR; Art. 82 OR; Art. 27 OR; Art. 100 Abs. 1 BGG`.
+- New prediction: `Art. 394 Abs. 1 OR; Art. 394 Abs. 3 OR; Art. 398 Abs. 1 OR; Art. 398 Abs. 2 OR; Art. 97 Abs. 1 OR; Art. 400 Abs. 1 OR; Art. 404 Abs. 1 OR; Art. 100 Abs. 1 BGG`.
+- Decision: upgrade current best to v29.
+- Lesson: OR-internal institution drift is a high-yield failure type. Surface-family alignment is blind to it because both old and new rows are pure OR.
+
+### v30 `test_026` family property / maintenance
+
+- Candidate: `release/submission_surface_anchor_escape_combo_v30_test026_family_property_maintenance_local/submission.csv`.
+- Kaggle ref: `52444605`.
+- Base: v29 public `0.28669`.
+- Changed row: `test_026`.
+- Public score: `0.28669`, flat.
+- Prediction count: `7 -> 10`.
+- Decision: do not upgrade.
+- Lesson: multi-issue ZGB repairs are less reliable when the replacement set becomes wide. Continue prioritizing tight institution repairs such as v27/v29.

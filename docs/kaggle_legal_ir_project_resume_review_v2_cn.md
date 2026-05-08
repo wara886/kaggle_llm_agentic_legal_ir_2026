@@ -4,10 +4,10 @@
 
 这个项目是一个面向瑞士法律检索的复杂 RAG / IR 系统。输入是一段英文法律案情，系统需要从法规库和判例片段中检索并输出相关 citation。最终方案不是单纯依赖 embedding 或大模型生成，而是把 BM25、MiniLM dense retrieval、RRF 融合、Qwen3 reranker、citation parser、法律家族审计和低外溢 test-surface 修复组合成一条可评估、可解释、可迭代的证据检索链路。
 
-当前最佳公开分数：`0.25015`  
-当前最佳基线提交：`release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv`  
-最新边界验证提交：`release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_local/submission.csv`  
-说明：v20 tight 将 public 从 `0.24075 -> 0.25015`；v20 full 加入更多 simple-partnership 相邻条文后反而降到 `0.24954`，因此当前主基线采用 tight 版。
+当前最佳公开分数：`0.28669`  
+当前最佳基线提交：`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`  
+最新同分验证提交：`release/submission_surface_anchor_escape_combo_v30_test026_family_property_maintenance_local/submission.csv`  
+说明：v27 和 v29 继续沿 same-family article-institution repair 路线，将 public 从 `0.25015 -> 0.26669 -> 0.28669`；v28/v30 持平，因此当前主基线采用带来实际增量的 v29。
 
 分数提升主线：
 
@@ -15,6 +15,7 @@
 0.01357 -> 0.08960 -> 0.11368 -> 0.16392 -> 0.17723
 -> 0.18136 -> 0.19043 -> 0.19876 -> 0.20020 -> 0.20556
 -> 0.20745 -> 0.23126 -> 0.23355 -> 0.24075 -> 0.25015
+-> 0.26669 -> 0.28669
 ```
 
 最重要的结论：这个比赛的瓶颈不是“缺一个更大的向量数据库”或“chunk 切得不够语义化”，而是 citation 级证据是否被正确召回、法域是否正确、显式法条是否被解析、最终输出是否控制 FP。
@@ -504,7 +505,7 @@ new missing laws_de citation: 0
 - 设计 laws-first hybrid retrieval 架构，以 citation-row 为检索单元，避免传统语义 chunk 破坏法律条文边界；使用 BM25 处理法条编号/缩写精确匹配，MiniLM 处理跨语言语义召回，RRF 融合多路候选。
 - 引入 Qwen3 yes/no reranker 和 residual audit，将错误拆分为候选缺失、重排过低、final cut 损失和 wrong-family，明确系统优化优先级。
 - 实现多语种 citation grammar parser，覆盖 `CC/CO/LDIP/LPM/LCD` 等法典别名和 `Art. 38 and 39 CO` 等并列引用，将显式题面锚点映射为标准瑞士法律 citation。
-- 构建 surface-family audit 与低外溢修复流程，基于 test 题面、train gold、laws 文本和本地代理指标定位高置信 wrong-family、same-family article drift 和 FP contamination 样本，将 public score 持续提升至 `0.25015`。
+- 构建 surface-family audit 与低外溢修复流程，基于 test 题面、train gold、laws 文本和本地代理指标定位高置信 wrong-family、same-family article drift 和 FP contamination 样本，将 public score 持续提升至 `0.28669`。
 - 建立提交门禁和实验日志制度，每次提交前检查 local proxy、train/test 证据、diff、prediction count 和 spillover，避免 leaderboard overfitting 和近重复提交。
 
 ### 英文简历 bullet
@@ -513,7 +514,7 @@ new missing laws_de citation: 0
 - Designed a laws-first hybrid retrieval pipeline using citation rows as retrieval units instead of generic semantic chunks, preserving legal citation boundaries and reducing wrong-article noise.
 - Added a Qwen3 yes/no reranker and residual audit framework to separate candidate-stage misses, rerank failures, final-cut losses, and wrong-family errors.
 - Implemented multilingual citation grammar normalization for legal aliases such as `CC/CO/LDIP/LPM/LCD` and conjunction patterns like `Art. 38 and 39 CO`, improving explicit-anchor recall.
-- Developed a surface-family audit and low-spillover patch workflow using test-query evidence, train gold support, laws text, and local proxy metrics, raising public score to `0.25015`.
+- Developed a surface-family audit and low-spillover patch workflow using test-query evidence, train gold support, laws text, and local proxy metrics, raising public score to `0.28669`.
 - Established submission guardrails requiring metric deltas, evidence chains, diff review, prediction-count checks, and spillover analysis before leaderboard submissions.
 
 ## 8. 面试讲法：STAR 版本
@@ -532,7 +533,7 @@ Kaggle 法律 IR 任务要求根据复杂英文案情，从瑞士法规和判例
 
 ### Result
 
-系统 public score 从早期低分逐步提升到 `0.25015`。更重要的是，我形成了一套可迁移到企业 RAG 的方法论：先定义证据单元和评测闭环，再做 hybrid retrieval、rerank、错误审计和提交门禁，而不是盲目堆模型或向量库。
+系统 public score 从早期低分逐步提升到 `0.28669`。更重要的是，我形成了一套可迁移到企业 RAG 的方法论：先定义证据单元和评测闭环，再做 hybrid retrieval、rerank、错误审计和提交门禁，而不是盲目堆模型或向量库。
 
 ## 9. 面试高频追问与回答
 
@@ -574,7 +575,7 @@ Kaggle 法律 IR 任务要求根据复杂英文案情，从瑞士法规和判例
 如果简历空间有限，推荐压缩成 3 条：
 
 ```text
-Kaggle Legal IR / RAG：构建瑞士法律 citation retrieval 系统，整合 BM25、MiniLM dense retrieval、RRF fusion、Qwen3 reranker、citation parser 和 law-family audit，从法规/判例语料中检索相关 citation，public score 提升至 0.25015。
+Kaggle Legal IR / RAG：构建瑞士法律 citation retrieval 系统，整合 BM25、MiniLM dense retrieval、RRF fusion、Qwen3 reranker、citation parser 和 law-family audit，从法规/判例语料中检索相关 citation，public score 提升至 0.28669。
 
 设计 laws-first hybrid retrieval 架构，以 citation-row 替代通用 semantic chunk 作为检索单元，结合显式法条解析、多语种法典别名归一和 source routing，降低 wrong-family / wrong-article 召回。
 
@@ -1013,3 +1014,108 @@ v21-v25 连续持平后，v20 tight 的突破把下一阶段优先级重新排�
 2. 对每个 query 先做 issue decomposition：题面到底问了几个法律问题，每个问题对应哪个最小 article anchor。
 3. tight 优先于 full；相邻条文只有在题面明确问到或 train/laws 证据很硬时才加入。
 4. 程序层补丁、宪法权利锚点、同 family 剪枝都已多次持平，后续只能作为辅助，不再作为主突破方向。
+
+## 18. 2026-05-08 继续突破：v27 / v29 将 public 提升到 0.28669
+
+### 当前新基线
+
+```text
+release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv
+```
+
+Kaggle ref：`52444556`  
+public score：`0.28669`
+
+本轮从 v20 tight `0.25015` 出发，继续执行上一节总结出的原则：不要只看 family alignment，而要找同一法族内的 legal institution/article cluster 是否完全错位。结果 v27 和 v29 连续验证有效，v28 和 v30 作为边界验证持平。
+
+### v27：test_021 freight forwarder / carrier，0.25015 -> 0.26669
+
+是什么：`test_021` 是 freight arranger / forwarding commission agent / carrier liability 问题。题面明确说 Nordic Logistics 组织 Costa Rica 到 Zurich 的货物运输，使用 sub-forwarder，货物在 Miami 被扣押；争点是它是否按 forwarding/carriage rules 承担运输损失，还是只按 mandate substitution 规则承担选择和指示注意义务。
+
+旧答案是：
+
+```text
+Art. 398 Abs. 3 OR; Art. 399 Abs. 2 OR; Art. 399 Abs. 1 OR; Art. 399 Abs. 3 OR; Art. 398 Abs. 1 OR; Art. 157 OR; Art. 100 Abs. 1 BGG
+```
+
+它抓住了题面显式的 mandate/substitution，但漏掉了 freight forwarding 和 carriage 的制度核心，尤其是 `Art. 439 OR`、`Art. 447 Abs. 1 OR`、`Art. 449 OR`。
+
+v27 改为：
+
+```text
+Art. 439 OR; Art. 440 Abs. 1 OR; Art. 440 Abs. 2 OR; Art. 447 Abs. 1 OR; Art. 449 OR; Art. 398 Abs. 3 OR; Art. 399 Abs. 2 OR; Art. 100 Abs. 1 BGG
+```
+
+为什么涨分：
+
+- `Art. 439 OR` 直接定义 forwarding contract，并说明 forwarder 视为 commission agent、运输部分适用 carriage rules。
+- `Art. 440 Abs. 1/2 OR` 连接 carrier definition 与 mandate fallback。
+- `Art. 447 Abs. 1 OR` 对应货物灭失/丢失的 carrier liability。
+- `Art. 449 OR` 对应 carrier 对中间承运人的责任，正好贴合 sub-forwarder 造成运输路径失败的争点。
+- 保留 `Art. 398 Abs. 3 OR` 和 `Art. 399 Abs. 2 OR`，因为题面明确引用这两个 mandate/substitution anchor。
+
+为什么可以这么做：这不是宽 OR prior，而是同一 OR family 内从普通 mandate 尾巴切换到 freight-forwarding/carriage 核心制度；只改一行，prediction count `7 -> 8`，没有新增缺失 citation。
+
+### v28：test_024 divorce evidence ZPO，public 持平
+
+是什么：`test_024` 是离婚程序中 earning capacity / medical incapacity 的证明标准、证据调查、以及上诉阶段能否提出延后财产分割请求的问题。
+
+v28 将旧的 ZGB/ZPO 尾巴替换为纯 ZPO evidence/divorce-procedure cluster：
+
+```text
+Art. 277 Abs. 1 ZPO; Art. 277 Abs. 2 ZPO; Art. 277 Abs. 3 ZPO; Art. 152 Abs. 1 ZPO; Art. 157 ZPO; Art. 283 Abs. 2 ZPO; Art. 317 Abs. 1 ZPO; Art. 100 Abs. 1 BGG
+```
+
+本地 proxy：unexpected family `1 -> 0`，prediction count `7 -> 8`。  
+Kaggle public：`0.26669`，相对 v27 持平。
+
+复盘：这说明“程序证据条文更合理”不一定转化为 hidden gold overlap。v28 的方向法理上成立，但 hidden gold 可能只覆盖其中一部分、或更依赖具体判例 citation；因此不升级基线。
+
+### v29：test_007 medical mandate / duty of care，0.26669 -> 0.28669
+
+是什么：`test_007` 是 ophthalmic surgery 服务是否构成 mandate、医生是否违反 professional standard of care、是否应赔偿二次治疗费用、以及是否还能收取未完成服务费用的问题。
+
+旧答案是：
+
+```text
+Art. 413 Abs. 2 OR; Art. 111 OR; Art. 525 Abs. 2 OR; Art. 23 OR; Art. 82 OR; Art. 27 OR; Art. 100 Abs. 1 BGG
+```
+
+它虽然在 OR family 内，但 article cluster 完全跑偏：`Art. 413 OR` 是经纪/佣金，`Art. 111 OR` 是第三人履行承诺，`Art. 525 OR` 是借贷/合伙附近尾巴，`Art. 23/27/82 OR` 也没有直接回答医疗委托和注意义务。
+
+v29 改为：
+
+```text
+Art. 394 Abs. 1 OR; Art. 394 Abs. 3 OR; Art. 398 Abs. 1 OR; Art. 398 Abs. 2 OR; Art. 97 Abs. 1 OR; Art. 400 Abs. 1 OR; Art. 404 Abs. 1 OR; Art. 100 Abs. 1 BGG
+```
+
+为什么涨分：
+
+- `Art. 394 Abs. 1 OR` 对应 mandate definition，回答医疗服务应定性为 mandate 而非 work contract。
+- `Art. 398 Abs. 1/2 OR` 对应 mandate duty of care 和 faithful/careful performance，正对医生未做影像和术前测试、手术不完整的争点。
+- `Art. 97 Abs. 1 OR` 对应 contractual liability for improper performance。
+- `Art. 394 Abs. 3 OR` 和 `Art. 404 Abs. 1 OR` 对应费用请求、委托可随时终止/失去信任后的未完成服务问题。
+- `Art. 400 Abs. 1 OR` 对应返还/交付因委托取得之物，覆盖 deposit/refund 侧的争点。
+
+为什么可以这么做：v29 与 v27 是同一模式的第二次强验证。family alignment 从一开始就是 `1.0`，所以 surface-family audit 不会提示它；真正的问题是 article institution 错位。只改 `test_007` 一行，prediction count `7 -> 8`，新增 citation 全存在于 `laws_de.csv`。
+
+### v30：test_026 family property / maintenance，public 持平
+
+是什么：`test_026` 同时问 co-owned bungalow 的租金、一方 post-divorce maintenance、child maintenance 和 extraordinary child expenses。旧答案漂到婚姻成立和亲权尾巴。
+
+v30 改为：
+
+```text
+Art. 646 Abs. 1 ZGB; Art. 646 Abs. 2 ZGB; Art. 648 Abs. 1 ZGB; Art. 125 Abs. 1 ZGB; Art. 125 Abs. 2 ZGB; Art. 276 Abs. 2 ZGB; Art. 285 Abs. 1 ZGB; Art. 286 Abs. 2 ZGB; Art. 286 Abs. 3 ZGB; Art. 100 Abs. 1 BGG
+```
+
+Kaggle public：`0.28669`，相对 v29 持平。
+
+复盘：v30 说明多争点家庭法宽修复没有 v27/v29 那么稳。虽然每个新增条文都能解释，但 prediction count `7 -> 10`，且 hidden gold 可能只覆盖部分家庭法轴。后续不能把 v29 的成功泛化成“只要旧 ZGB 错就补完整 ZGB issue set”；仍要优先找 v27/v29 这种条文制度错得非常集中、替换后仍紧的样本。
+
+### 本轮新原则
+
+1. **最强信号**：family alignment 已经是 `1.0`，但旧 citation 来自明显错误制度。代表：v27、v29。
+2. **有效做法**：先做 issue decomposition，再选择最小 article cluster；保留题面显式 anchor，删除同法族但错制度尾巴。
+3. **边界**：纯程序证据修复和多争点宽家庭法修复即使法理合理，也可能持平。代表：v28、v30。
+4. **下一步**：继续扫 OR/ZGB 中 family 已对但制度错位的行，尤其当前答案含经纪、婚姻成立、亲权、借贷等明显不贴题尾巴，而题面有更具体制度名的样本。

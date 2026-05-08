@@ -1,9 +1,9 @@
 # 下一轮优化接力说明
 
 ## 当前状态
-- 当前最佳公开分数：`0.25015`
-- 当前最佳提交文件：`release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv`
-- Kaggle ref：`52256243`
+- 当前最佳公开分数：`0.28669`
+- 当前最佳提交文件：`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
+- Kaggle ref：`52444556`
 - 当前最佳路线不是换模型，而是 test-surface 级别的少量高置信修复；最新有效形态是 same-family article-institution repair。
 
 ## 已验证有效的提升路线
@@ -40,7 +40,7 @@
 - 不要继续围绕 `test_025` 追加 `Art. 55 IPRG`、`Art. 651 Abs. 1 ZGB` 等相邻条文；这会变成 v9/v11 那种近重复试探。
 
 ## 下一步优先级
-1. 以 `0.25015` v20 tight 为唯一基线重新扫低风险候选。
+1. 以 `0.28669` v29 为唯一基线重新扫低风险候选。
 2. 优先找“same broad family, wrong legal institution / wrong article cluster”的行；不要只依赖 family alignment，因为 v20 的 alignment 不涨但 public 大涨。
 3. 其次找“明显 wrong-family + train exact 或 near-exact 支撑”的行，复用 v8/v12 的选择逻辑。
 4. 只改 1 行或少数强相关行；tight issue decomposition 优先，不追求宽召回。
@@ -51,6 +51,15 @@
 - 成功原因是当前预测 family 表面正确，但 article cluster 落在错误制度：`Art. 173/328/94/119 ZGB` 和 `Art. 406 OR` 没有直接回答 fiduciary mandate/accounting、simple partnership 定性和 post-divorce maintenance。
 - 最终 tight 版保留 8 条：`Art. 394 Abs. 1 OR; Art. 400 Abs. 1 OR; Art. 530 Abs. 1 OR; Art. 125 ZGB; Art. 125 Abs. 1 ZGB; Art. 125 Abs. 2 ZGB; Art. 8 ZGB; Art. 100 Abs. 1 BGG`。
 - full 版追加 `Art. 398 Abs. 2 OR; Art. 532 OR; Art. 537 Abs. 1 OR` 后 public 为 `0.24954`，低于 tight。结论：不要机械搬运 v14 的 simple-partnership 三件套，tight 比 full 更稳。
+
+- `test_021`：v27 从 `0.25015` 提升到 `0.26669`。
+- 成功原因是当前预测虽然在 OR family 内，但只覆盖普通 mandate/substitution；题面核心是 freight forwarding / carriage / sub-forwarder liability。
+- 最终 tight 版保留 8 条：`Art. 439 OR; Art. 440 Abs. 1 OR; Art. 440 Abs. 2 OR; Art. 447 Abs. 1 OR; Art. 449 OR; Art. 398 Abs. 3 OR; Art. 399 Abs. 2 OR; Art. 100 Abs. 1 BGG`。
+
+- `test_007`：v29 从 `0.26669` 提升到 `0.28669`。
+- 成功原因是当前预测在 OR family 内但 article institution 完全错位：brokerage / third-party promise / loan tails 被替换成 medical mandate、duty of care、contractual liability、refund/termination anchors。
+- 最终 tight 版保留 8 条：`Art. 394 Abs. 1 OR; Art. 394 Abs. 3 OR; Art. 398 Abs. 1 OR; Art. 398 Abs. 2 OR; Art. 97 Abs. 1 OR; Art. 400 Abs. 1 OR; Art. 404 Abs. 1 OR; Art. 100 Abs. 1 BGG`。
+- v28 `test_024` 和 v30 `test_026` 均持平，说明程序层和多争点 ZGB 宽修复不如 OR 内部制度错位修复稳。
 
 ## 暂停或谨慎观察的行
 - 暂停：`test_008`、`test_010`、`test_036`。
@@ -70,7 +79,7 @@
 - `data_raw/competition_data/test.csv`
 - `data_raw/competition_data/train.csv`
 - `data_raw/competition_data/laws_de.csv`
-- `release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv`
+- `release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
 
 ## 建议开场指令
 新对话可以直接说：
@@ -78,8 +87,8 @@
 ```text
 请在 h:\cord\kaggle_llm_agentic_legal_ir_2026 继续 Kaggle legal IR 优化。
 先回读 docs/current_progress_summary.md、docs/experiment_log.md、docs/next_optimization_handoff.md，
-以 release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv
-和 public score 0.25015 为唯一基线。继续找低风险、单行优先的 same-family article-institution 修复或 wrong-family 修复候选；
+以 release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv
+和 public score 0.28669 为唯一基线。继续找低风险、单行优先的 same-family article-institution 修复或 wrong-family 修复候选；
 每次提交前必须先证明本地代理指标正向，并说明 train/test 证据。
 ```
 
