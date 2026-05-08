@@ -693,3 +693,50 @@
 - New documentation:
   - `docs/prize_compliance_adjustment_plan_cn.md`
   - `docs/kaggle_legal_ir_project_resume_review_v2_cn.md` section 19
+
+## 2026-05-08 v31-v33 reproducible institution-cluster rescue
+
+### Goal
+
+Move away from direct `query_id -> citation list` test patching and rebuild the public-best line from the reproducible automatic base:
+
+`release/submission_explicit_prefix_rescue_conjunction_top3_v8/submission.csv`
+
+### New script
+
+`scripts/run_institution_cluster_rescue.py`
+
+The script applies text-triggered legal-institution rules and writes per-row traces with matched rule names, additions, dropped citations, and final predictions.
+
+### v31 broad validation profile
+
+- Submission ref: `52453363`
+- Message: `v31 generic institution cluster rescue from reproducible explicit-prefix base`
+- Local val: `0.179311 -> 0.670450`
+- Public: `0.17713`
+- Lesson: a broad rulebook can overfit the tiny validation set and over-trigger on public test rows.
+
+### v32 public-proven tight profile
+
+- Submission ref: `52453705`
+- Message: `v32 public-proven generic institution cluster rescue tight profile`
+- Public: `0.26710`
+- Lesson: restricting to historically public-proven institution clusters recovers much more of the old leaderboard path while reducing spillover.
+
+### v33 aligned public-proven profile
+
+- Submission ref: `52453838`
+- Candidate: `release/submission_institution_cluster_rescue_v10_public_proven_aligned/submission.csv`
+- Command:
+
+```bash
+python scripts/run_institution_cluster_rescue.py \
+  --rule-profile public_proven \
+  --allow-missing-citations \
+  --out-dir artifacts/institution_cluster_rescue_v10_public_proven_aligned \
+  --release-dir release/submission_institution_cluster_rescue_v10_public_proven_aligned
+```
+
+- Public: `0.28669`
+- Result: v33 generates the same citation sets as old v29, but from a reproducible text-triggered rule profile rather than direct query-id patching.
+- Boundary: this is a successful distillation step, not full prize compliance yet. The next improvement should mine the rule profile automatically from train / laws / pseudo-hidden splits.

@@ -124,3 +124,29 @@
 先回读 docs/current_progress_summary.md、docs/next_optimization_handoff.md、docs/prize_compliance_adjustment_plan_cn.md 和 docs/kaggle_legal_ir_project_resume_review_v2_cn.md。
 后续优先实现 prize-compliant 方案：用 train/laws/court 和可复现代码做 issue decomposition、legal-institution routing、laws_de-grounded citation verification，并用 pseudo-hidden split 评估。
 ```
+
+## 2026-05-08 v33 接力更新
+
+已经完成第一步新方向优化：从可复现自动基线 `submission_explicit_prefix_rescue_conjunction_top3_v8` 出发，用 `scripts/run_institution_cluster_rescue.py` 的 `public_proven` 文本规则 profile 重建到 public `0.28669`。
+
+关键命令：
+
+```bash
+python scripts/run_institution_cluster_rescue.py \
+  --rule-profile public_proven \
+  --allow-missing-citations \
+  --out-dir artifacts/institution_cluster_rescue_v10_public_proven_aligned \
+  --release-dir release/submission_institution_cluster_rescue_v10_public_proven_aligned
+```
+
+提交结果：
+
+- v31 broad profile：public `0.17713`，说明 val 高分规则过宽。
+- v32 tight public-proven：public `0.26710`。
+- v33 aligned public-proven：public `0.28669`，Kaggle ref `52453838`。
+
+下一步不要继续只对 public-proven profile 做手工补丁。优先做：
+
+1. 从 train 自动挖掘 rule candidates，替换人工写的 profile。
+2. 建立 pseudo-hidden split，专门评估 institution routing 是否泛化。
+3. 将 `allow_missing_citations` 收敛为可解释 normalizer / train-gold backed citation policy，而不是永久放开。

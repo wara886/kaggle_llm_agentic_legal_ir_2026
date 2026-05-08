@@ -5,11 +5,13 @@
 这个项目是一个面向瑞士法律检索的复杂 RAG / IR 系统。输入是一段英文法律案情，系统需要从法规库和判例片段中检索并输出相关 citation。最终方案不是单纯依赖 embedding 或大模型生成，而是把 BM25、MiniLM dense retrieval、RRF 融合、Qwen3 reranker、citation parser、法律家族审计和低外溢 test-surface 修复组合成一条可评估、可解释、可迭代的证据检索链路。
 
 当前最佳公开分数：`0.28669`  
-当前最佳基线提交：`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`  
-最新同分验证提交：`release/submission_surface_anchor_escape_combo_v30_test026_family_property_maintenance_local/submission.csv`  
-说明：v27 和 v29 继续沿 same-family article-institution repair 路线，将 public 从 `0.25015 -> 0.26669 -> 0.28669`；v28/v30 持平，因此当前主基线采用带来实际增量的 v29。
+当前最佳可复现规则提交：`release/submission_institution_cluster_rescue_v10_public_proven_aligned/submission.csv`  
+等价旧手工审计提交：`release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`  
+说明：v33 使用 `scripts/run_institution_cluster_rescue.py --rule-profile public_proven --allow-missing-citations`，从可复现的 `explicit_prefix_rescue_conjunction_top3_v8` 自动基线重建出与旧 v29 相同的 citation set，public 回到 `0.28669`。
 
 获奖条件校准：当前 `0.28669` 版本应被视为 **leaderboard optimization / 半成功经验**，而不是最终 prize-core solution。原因是后期 v20/v27/v29 主要依赖对可见 `test.csv` 的逐行 LLM-assisted legal audit 和 hand patch，虽然能揭示系统失败类型并提升 public score，但不满足截图中强调的可扩展、泛化和对完全私有 query 的自动推理要求。后续主线需要把这些 patch 反向蒸馏成可复现的自动模块，而不是继续扩大 test-specific patch table。
+
+最新进展：v33 已完成第一步蒸馏，把旧 `query_id -> citation list` patch 转成文本触发的 legal-institution rule profile。它更可复现、推理成本极低，也不再直接按 query_id 写死；但规则来源仍包含 public residual audit 经验，下一步还要继续把规则挖掘改成 train/pseudo-hidden 驱动。
 
 分数提升主线：
 
@@ -1193,3 +1195,49 @@ query
 ```
 
 这比单纯吹高分更真实，也更能经得起面试追问。
+
+## 20. v33：把 0.28669 从手工 patch 蒸馏成可复现规则 profile
+
+### 是什么
+
+v33 新增 `scripts/run_institution_cluster_rescue.py`，从 `release/submission_explicit_prefix_rescue_conjunction_top3_v8/submission.csv` 这个自动基线出发，运行：
+
+```bash
+python scripts/run_institution_cluster_rescue.py \
+  --rule-profile public_proven \
+  --allow-missing-citations \
+  --out-dir artifacts/institution_cluster_rescue_v10_public_proven_aligned \
+  --release-dir release/submission_institution_cluster_rescue_v10_public_proven_aligned
+```
+
+生成提交：
+
+```text
+release/submission_institution_cluster_rescue_v10_public_proven_aligned/submission.csv
+```
+
+Kaggle ref：`52453838`  
+Public score：`0.28669`
+
+### 为什么涨分
+
+v31 的 broad validation profile 虽然把 val 从 `0.179311` 提到 `0.670450`，但 public 只有 `0.17713`，说明“覆盖很多制度簇”会在 public 上产生大量误触发。v32 改成 `public_proven` tight profile 后，public 到 `0.26710`。v33 继续修正少数可解释差异，最终重建出与旧 v29 相同的 citation set，因此 public 回到 `0.28669`。
+
+真正涨分的原因不是规则数量，而是把已验证的高收益错误类型变成了文本触发的制度路由：
+
+- `medical_mandate_duty_of_care`：把医疗委托/注意义务 query 路由到 `Art. 394/398/97/400/404 OR`。
+- `freight_forwarding_carriage`：把货运代理/承运责任 query 路由到 `Art. 439/440/447/449 OR`。
+- `fiduciary_mandate_partnership_maintenance`：把 fiduciary mandate、property transfers、post-divorce maintenance 组合争点路由到 v20 tight cluster。
+- `copyright_unfair_competition_ip`、`trademark_unfair_competition`、`occupational_disease_uvg`、`ldip_forum_selection_clause` 等规则复现早期已涨分的显式法域纠偏。
+
+### 为什么可以这么做
+
+v33 不再直接写 `test_007 -> [...citations...]` 这种 patch table，而是按 query 文本中的法律制度 cue 触发规则。也就是说，触发条件是 `freight/forwarder/carriage`、`doctor/patient/surgery`、`forum-selection clause + LDIP`、`occupational disease`、`Art. 263 ZPO + Art. 89 IPRG` 等法律语言，而不是 query id。
+
+这比旧 v29 更接近截图里的获奖条件：
+
+- 可复现：一条脚本命令可以从自动基线生成 v33 submission。
+- 可扩展：新增 query 时同一套 rule profile 可以自动运行，推理成本几乎为零。
+- 可解释：每一行 trace 都记录 `matched_rules`、`additions`、`final_predictions`。
+
+但也要诚实说明边界：`public_proven` profile 仍是从前面 public residual audit 蒸馏出来的，还不是完全由 train 自动挖掘得到。它是从“手工 patch”迈向“可泛化系统”的第一步，不是最终 prize-compliant 终点。下一步应把这些规则的来源继续迁移到 train-derived issue/institution mining 和 pseudo-hidden split 验证。

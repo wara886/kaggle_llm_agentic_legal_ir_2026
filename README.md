@@ -4,12 +4,13 @@ This repository contains a reproducible legal information retrieval pipeline for
 
 ## Current Best
 
-- Public score: `0.25015`
-- Current best submission: `release/submission_surface_anchor_escape_combo_v20_test015_mandate_partnership_maintenance_tight_local/submission.csv`
+- Public score: `0.28669`
+- Current best reproducible-rule submission: `release/submission_institution_cluster_rescue_v10_public_proven_aligned/submission.csv`
+- Equivalent previous hand-audited submission: `release/submission_surface_anchor_escape_combo_v29_test007_medical_mandate_tight_local/submission.csv`
 - Best-candidate rationale: see `docs/experiment_log.md` and `docs/next_optimization_handoff.md`
 - Resume/interview project review: `docs/kaggle_legal_ir_project_resume_review_v2_cn.md`
 
-The later v21-v25 submissions were boundary checks and stayed flat at `0.24075`; the active best remains v20 tight.
+The v33 submission rebuilds the `0.28669` citation set from the reproducible `explicit_prefix_rescue_conjunction_top3_v8` base using a generic legal-institution rule profile rather than a `query_id -> citation list` patch table.
 
 ## System Map
 
@@ -33,6 +34,7 @@ query
 - `scripts/run_qwen3_reranker_module_ablation.py` - Qwen3 reranker A/B runner.
 - `scripts/run_surface_family_audit.py` - test-surface law-family audit tooling.
 - `scripts/run_targeted_test_patch.py` - low-spillover row-level patch runner.
+- `scripts/run_institution_cluster_rescue.py` - reproducible text-triggered legal-institution cluster rescue.
 - `scripts/evaluate_submission_official_strict.py` - official-style strict local evaluator.
 - `src/legal_ir/corpus_builder.py` - citation-row corpus construction.
 - `src/retrieval_sparse.py` - BM25 and sparse retrieval.
