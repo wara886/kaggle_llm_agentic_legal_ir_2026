@@ -494,3 +494,18 @@ Intermediate results:
 Interpretation:
 
 The old hand patch line has now been partially distilled into a reproducible legal-institution router. This is stronger than raw test patching because the script triggers on legal text cues such as `freight/forwarder/carriage`, `doctor/patient/surgery`, `forum-selection clause + LDIP`, and `occupational disease`, not on query IDs. It is still not the final prize-compliant endpoint because the `public_proven` rule profile was distilled from public residual audit; the next step is to learn or verify the same rules from train-derived pseudo-hidden splits.
+
+## 2026-05-08 future submission gate
+
+New gate:
+
+`scripts/audit_prize_compliance.py`
+
+Current v33 status:
+
+- non-strict audit: `pass_with_warnings`
+- strict audit: `needs_review`
+- hard failures: `0`
+- warnings: `3`
+
+Interpretation: v33 is acceptable as a reproducible score-recovery artifact, but it should not be described as final prize-compliant code until the warnings are resolved. Future final submissions must pass strict audit and include pseudo-hidden generalization evidence.

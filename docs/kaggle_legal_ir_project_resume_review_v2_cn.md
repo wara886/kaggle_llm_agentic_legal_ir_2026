@@ -1241,3 +1241,14 @@ v33 不再直接写 `test_007 -> [...citations...]` 这种 patch table，而是�
 - 可解释：每一行 trace 都记录 `matched_rules`、`additions`、`final_predictions`。
 
 但也要诚实说明边界：`public_proven` profile 仍是从前面 public residual audit 蒸馏出来的，还不是完全由 train 自动挖掘得到。它是从“手工 patch”迈向“可泛化系统”的第一步，不是最终 prize-compliant 终点。下一步应把这些规则的来源继续迁移到 train-derived issue/institution mining 和 pseudo-hidden split 验证。
+
+### 代码审查状态
+
+新增 `scripts/audit_prize_compliance.py` 作为未来提交门禁。当前 v33 审计结果是 `needs_review`，不是 `pass`：
+
+```text
+fail_count: 0
+warn_count: 3
+```
+
+三个 warning 分别是：读取 test query 做推理、`public_proven` 仍来自 public residual audit、`allow_missing_citations` 需要 normalizer 或 train-gold 证据。完整审查说明见 `docs/prize_submission_code_review_cn.md`。

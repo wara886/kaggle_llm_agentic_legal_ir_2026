@@ -150,3 +150,18 @@ python scripts/run_institution_cluster_rescue.py \
 1. 从 train 自动挖掘 rule candidates，替换人工写的 profile。
 2. 建立 pseudo-hidden split，专门评估 institution routing 是否泛化。
 3. 将 `allow_missing_citations` 收敛为可解释 normalizer / train-gold backed citation policy，而不是永久放开。
+
+## 2026-05-08 未来提交代码门禁
+
+新增 `scripts/audit_prize_compliance.py` 和 `docs/prize_submission_code_review_cn.md`。
+
+当前 v33 审计：
+
+```bash
+python scripts/audit_prize_compliance.py \
+  --generator scripts/run_institution_cluster_rescue.py \
+  --submission release/submission_institution_cluster_rescue_v10_public_proven_aligned/submission.csv \
+  --strict
+```
+
+结果：`needs_review`，`fail_count=0`，`warn_count=3`。这意味着 v33 可作为探索/蒸馏成果，但不能直接包装成最终获奖主线。未来如果要说“满足获奖条件”，必须让审计进入 `pass`，并附带 pseudo-hidden 结果。

@@ -35,6 +35,7 @@ query
 - `scripts/run_surface_family_audit.py` - test-surface law-family audit tooling.
 - `scripts/run_targeted_test_patch.py` - low-spillover row-level patch runner.
 - `scripts/run_institution_cluster_rescue.py` - reproducible text-triggered legal-institution cluster rescue.
+- `scripts/audit_prize_compliance.py` - prize-condition gate for future submission code.
 - `scripts/evaluate_submission_official_strict.py` - official-style strict local evaluator.
 - `src/legal_ir/corpus_builder.py` - citation-row corpus construction.
 - `src/retrieval_sparse.py` - BM25 and sparse retrieval.

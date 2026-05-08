@@ -740,3 +740,18 @@ python scripts/run_institution_cluster_rescue.py \
 - Public: `0.28669`
 - Result: v33 generates the same citation sets as old v29, but from a reproducible text-triggered rule profile rather than direct query-id patching.
 - Boundary: this is a successful distillation step, not full prize compliance yet. The next improvement should mine the rule profile automatically from train / laws / pseudo-hidden splits.
+
+## 2026-05-08 prize-compliance code gate
+
+- Added `scripts/audit_prize_compliance.py`.
+- Added `docs/prize_submission_code_review_cn.md`.
+- Current v33 audit:
+  - non-strict: `pass_with_warnings`
+  - strict: `needs_review`
+  - fail count: `0`
+  - warning count: `3`
+- Warnings:
+  - generator reads test queries for inference;
+  - `public_proven` profile is still distilled from public residual audit;
+  - `allow_missing_citations` needs normalizer or train-gold backing before final prize submission.
+- Decision: v33 remains a valid reproducible exploration / distillation result, but future prize-core code must pass the strict gate and include pseudo-hidden evidence.
