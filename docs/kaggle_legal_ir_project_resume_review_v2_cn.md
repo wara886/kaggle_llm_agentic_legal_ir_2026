@@ -1384,3 +1384,41 @@ validation nonempty prediction rows: 8 / 10
 这比上一层 raw miner 的 pseudo-hidden `0.092175` 更高，并且首次在这条 prize-compliant 分支里加入了 validation transfer check。它仍然远低于 public-best v33，但二者不可直接比较：v33 是 public residual audit 蒸馏，cluster router v1 是 train/val/laws 驱动的泛化证据层。
 
 当前主要失败模式也很清楚：部分 cue 仍然过宽，例如 `vertragliche haftung`、`koerperverletzung stgb`、`nachlass planen` 会把 query 拉向相邻但不正确的 train cluster。下一步应给 cue expansion 加 family/institution guard，并为 invalidity rehabilitation、child visitation/contact restriction、child maintenance security 这类 validation 未覆盖问题补 train-derived institution families。只有 validation 与 pseudo-hidden 同时稳定改善后，才适合把该 router 接入真正的 submission 生成链路。
+
+## 24. 2026-05-09：一次可复现候选提交与负反馈
+
+为了避免只停留在离线报告，新增候选生成脚本：
+
+```text
+scripts/run_train_mined_router_candidate.py
+```
+
+它把 train-mined router 的输出接到已有自动基线，而不是直接替换整份预测。脚本会先在 validation 上比较 base/trial，再写出 release submission。第一条可提交候选采用 `explicit_only_append`：只把 query 中显式出现、并经 `laws_de.csv` 校验的法律条文扩展追加到自动基线。
+
+本地结果：
+
+```text
+base val strict F1: 0.179311
+trial val strict F1: 0.184091
+delta: +0.004780
+changed val rows: 3
+changed test rows: 5
+```
+
+提交结果：
+
+```text
+Kaggle ref: 52471076
+public score: 0.11307
+message: train-mined explicit anchor v2 val +0.00478 vs auto baseline
+```
+
+这个结果低于自动基线 public `0.11368`，说明 validation 上的 article-level explicit prefix expansion 没有转化为 public 上分。更具体地说，`Art. 83 SVG`、`Art. 398 StPO`、`Art. 176 ZGB` 这类 query 显式 article 的 Abs sibling expansion 容易增加 FP；它们是合法、可复现、可解释的扩展，但不一定符合 hidden gold 的粒度。
+
+后续试了更窄版本：
+
+- `--explicit-prefix-cap 1`
+- `--explicit-prefix-cap 0`
+- `--merge-strategy explicit_new_article_append`
+
+这些版本没有保持 validation 正向，因此没有继续提交。结论不是“可复现路线错了”，而是“显式 article sibling expansion 需要 family/institution guard”。下一步应该把规则从 `见 article 就补 Abs siblings` 改成 `query issue + base coverage + train evidence` 三者同时支持才补。

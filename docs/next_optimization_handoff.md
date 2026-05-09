@@ -254,3 +254,43 @@ python scripts/run_train_mined_cluster_router.py
 2. 给 cue expansion 加 cluster-family guard，例如 pretrial detention 应偏向 `StPO`，不要误触发少年刑法/普通伤害簇。
 3. 为 val_002、val_005、val_009 这类未覆盖行挖 train-derived institution families：invalidity rehabilitation、child visitation/contact restriction、child maintenance security。
 4. 只在 validation + pseudo-hidden 同时改善后，才考虑把该 router 接到 submission 生成链路。
+
+## 2026-05-09 提交反馈：train-mined explicit-anchor v2
+
+新增候选生成脚本：
+
+`scripts/run_train_mined_router_candidate.py`
+
+已提交的候选：
+
+```bash
+python scripts/run_train_mined_router_candidate.py \
+  --merge-strategy explicit_only_append \
+  --out-dir artifacts/train_mined_router_candidate_v2_explicit_only \
+  --release-dir release/submission_train_mined_router_candidate_v2_explicit_only
+```
+
+本地 gate：
+
+- base val strict F1: `0.179311`
+- trial val strict F1: `0.184091`
+- delta: `+0.004780`
+- changed val rows: `3`
+- changed test rows: `5`
+
+Kaggle:
+
+- ref: `52471076`
+- public score: `0.11307`
+- 对照自动基线 public：`0.11368`
+- 对照当前 v33 public best：`0.28669`
+
+结论：
+
+这次提交给了一个清楚的负反馈：只靠 query 显式 article 的 Abs sibling expansion，即使 validation 正向，也可能在 public test 上产生轻微 FP。不要继续提交 `explicit-prefix-cap` 变体；已经试过 `cap=1`、`cap=0` 和 `explicit_new_article_append`，它们没有 validation 正向，因此未提交。
+
+下一步：
+
+1. 给 explicit prefix expansion 加 family/institution guard，只在 query issue 与 base family 明确不覆盖时补。
+2. 对 train-mined cue expansion 加 cluster guard，避免 `koerperverletzung stgb`、`vertragliche haftung`、`nachlass planen` 这类宽 cue 误触发。
+3. 下一次提交必须同时满足：validation 正向、pseudo-hidden 不降、test diff 少且能解释。
