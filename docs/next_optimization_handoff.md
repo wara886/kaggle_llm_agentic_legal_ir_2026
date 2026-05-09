@@ -202,3 +202,15 @@ python scripts/mine_train_institution_router.py
 - 这不是新提交文件，也不应直接拿来替换 v33。
 - 它是下一步 prize-compliant router 的证据层：先从 `candidate_rule_clusters.csv` 挑 robust cluster，再把少量验证过的 cluster 接入路由器。
 - 继续优化时优先提高 pseudo-hidden 覆盖和 precision；不要为了 public 分数回头手写 `test_*** -> citations`。
+
+## 2026-05-09 本地提交环境接力更新
+
+本地环境已经切到 Python `3.11.9`，路径为 `H:\Tools\Python311\python.exe`；旧 Python `3.10.5` 已卸载。Git 当前优先使用 `H:\Tools\MinGit-2.54.0-64-bit\cmd\git.exe`，版本 `2.54.0.windows.1`。用户级代理变量已设置到 `7897`，Kaggle 新式令牌走 `KAGGLE_API_TOKEN`，不依赖 `kaggle.json`。
+
+新增只读环境检查脚本：
+
+```bash
+python scripts/check_local_submission_env.py --check-remote
+```
+
+当前检查全部通过：Python、Git、7897 代理、Kaggle token、Kaggle CLI `2.1.2` 和比赛访问都可用。提交命令可用，但不要因为 CLI 通了就直接提交；新 submission 仍必须先通过 `audit_prize_compliance.py`，并附带 validation + pseudo-hidden 证据。

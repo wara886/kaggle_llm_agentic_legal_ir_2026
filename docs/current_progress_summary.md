@@ -554,3 +554,32 @@ Latest default run:
 Interpretation:
 
 This is not yet a submission generator and should not be compared directly with the v33 public score. Its purpose is to move the source of legal-institution routing away from public residual audit and toward train-derived, reproducible evidence. The current miner is deliberately conservative: final candidate citations must exist in `laws_de.csv`, and phrase candidates must contain legal/institution anchors by default. The next step is to use `candidate_rule_clusters.csv` to select robust institution clusters, then plug a small verified subset into a router and test it against validation plus pseudo-hidden before touching leaderboard submissions again.
+
+## 2026-05-09 local submission environment refresh
+
+The local toolchain was refreshed so future Kaggle checks and submissions can be reproduced from the same shell assumptions:
+
+- Python now resolves to `H:\Tools\Python311\python.exe` (`3.11.9`).
+- The old local Python `3.10.5` install was removed.
+- Git now resolves first to `H:\Tools\MinGit-2.54.0-64-bit\cmd\git.exe` (`2.54.0.windows.1`).
+- User-level proxy variables point at local port `7897`.
+- Kaggle auth uses the new `KAGGLE_API_TOKEN` environment variable; no `kaggle.json` is required for this token shape.
+- Kaggle CLI `2.1.2` can reach `llm-agentic-legal-information-retrieval`, and the account is entered in the competition.
+
+Added a read-only reproducibility gate:
+
+```bash
+python scripts/check_local_submission_env.py --check-remote
+```
+
+Latest check:
+
+```text
+[PASS] python: H:\Tools\Python311\python.exe (3.11.9)
+[PASS] git: H:\Tools\MinGit-2.54.0-64-bit\cmd\git.EXE; git version 2.54.0.windows.1
+[PASS] proxy: HTTP_PROXY=set, HTTPS_PROXY=set, ALL_PROXY=set; expected port 7897
+[PASS] kaggle_token: KGAT_*
+[PASS] kaggle_cli: H:\Tools\Python311\Scripts\kaggle.EXE; Kaggle CLI 2.1.2; competition reachable
+```
+
+Submission discipline remains unchanged: the CLI is ready, but no new leaderboard submission should be made until a candidate passes the reproducible submission gate and has validation plus pseudo-hidden evidence.

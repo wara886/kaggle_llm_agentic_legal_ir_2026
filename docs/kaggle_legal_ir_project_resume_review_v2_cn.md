@@ -1328,3 +1328,24 @@ v33 的主要风险是规则 profile 仍来自 public residual audit。`mine_tra
 3. 把候选规则以 CSV 和 Markdown 形式落盘，便于审查、复跑和 ablation。
 
 下一步应从 `candidate_rule_clusters.csv` 里挑高支持、低噪声的制度簇，接入一个小型 train-mined router，然后同时跑 validation 和 pseudo-hidden。只有这条路径表现稳定，才适合继续往最终 prize-compliant submission 靠近。
+
+## 22. 2026-05-09：本地工具链与 Kaggle 提交环境门禁
+
+为了让后续实验和提交路径更可复现，本地环境已完成一次工具链刷新：
+
+- Python 切到 `H:\Tools\Python311\python.exe`，版本 `3.11.9`。
+- 旧 Python `3.10.5` 已卸载，避免 Kaggle CLI 继续落到不满足 `>=3.11` 的解释器。
+- Git 优先使用 `H:\Tools\MinGit-2.54.0-64-bit\cmd\git.exe`，版本 `2.54.0.windows.1`。
+- Codex / Python / Kaggle 相关请求统一走本地 `7897` 代理端口。
+- Kaggle 鉴权使用新式 `KAGGLE_API_TOKEN` 环境变量，不再伪造旧版 `kaggle.json`。
+- Kaggle CLI `2.1.2` 已能访问 `llm-agentic-legal-information-retrieval`，并确认账号已加入比赛。
+
+新增只读检查脚本：
+
+```bash
+python scripts/check_local_submission_env.py --check-remote
+```
+
+这个脚本检查 Python、Git、代理、Kaggle token 和比赛访问，不打印 token 明文，也不提交文件。当前检查全部通过。它的作用是把“本机现在能不能复现实验、能不能安全走提交命令”变成一个明确的 gate，而不是依赖记忆或手工观察。
+
+需要强调：提交通道可用不等于应该立刻提交。当前新的 train-derived mining v1 仍是泛化证据层，不是新 submission candidate。下一次真正提交前，仍应先运行 prize-compliance audit，并提供 validation 与 pseudo-hidden 结果。
