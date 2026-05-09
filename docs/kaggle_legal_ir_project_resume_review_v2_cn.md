@@ -1252,3 +1252,79 @@ warn_count: 3
 ```
 
 三个 warning 分别是：读取 test query 做推理、`public_proven` 仍来自 public residual audit、`allow_missing_citations` 需要 normalizer 或 train-gold 证据。完整审查说明见 `docs/prize_submission_code_review_cn.md`。
+
+## 21. train-derived institution mining v1：把规则来源迁回训练集
+
+### 是什么
+
+在 v33 之后，新增了第一层真正面向获奖条件的证据生成脚本：
+
+```text
+scripts/mine_train_institution_router.py
+```
+
+默认运行：
+
+```bash
+python scripts/mine_train_institution_router.py
+```
+
+生成产物：
+
+```text
+docs/train_institution_router_v1.md
+artifacts/train_institution_router_v1/summary.json
+artifacts/train_institution_router_v1/candidate_rules.csv
+artifacts/train_institution_router_v1/candidate_rule_clusters.csv
+artifacts/train_institution_router_v1/pseudo_hidden_predictions.csv
+artifacts/train_institution_router_v1/pseudo_hidden_trace.csv
+artifacts/train_institution_router_v1/pseudo_hidden_eval_per_query.csv
+```
+
+这个脚本只使用 `train.csv` 和 `laws_de.csv`。它不读取 `test.csv`，不维护 `query_id -> citation list`，也不使用 public leaderboard 反馈。
+
+### 怎么做
+
+脚本流程是：
+
+```text
+train.csv
+  -> 按 gold citation 的 dominant family / article stems 建 pseudo-hidden split
+  -> 从训练 query 中抽取含法律/制度锚点的 phrase
+  -> 统计 phrase 与 laws-grounded gold citation cluster 的共现
+  -> 过滤低 support / 低 precision 候选
+  -> 在 held-out train rows 上评估 phrase router
+```
+
+关键约束：
+
+- 候选 citation 必须存在于 `laws_de.csv`。
+- 默认要求 phrase 含法律或制度锚点，例如 `vertrag`、`unterhalt`、`haft`、`beweis`、`stgb` 等。
+- singleton legal topic 默认留在 mining train 侧，避免伪隐藏评估变成预测从未见过的制度。
+- 输出 `candidate_rule_clusters.csv`，把大量 phrase 聚合到 citation cluster 层，便于后续人工审查和自动路由接入。
+
+### 当前结果
+
+默认参数下的本地结果：
+
+```text
+train_rows_total: 1139
+train_rows_for_mining: 1043
+pseudo_hidden_rows: 96
+pseudo_hidden_topic_groups: 89
+candidate_rule_count: 1668
+pseudo_hidden_matched_rows: 34
+pseudo_hidden_macro_f1: 0.092175
+```
+
+这不是一个可以直接替换 v33 的 submission generator。它的意义在于证明：项目已经开始把 v33 的 `public_proven` 规则来源迁移到 train-derived、可复现、可审计的数据生成路径。
+
+### 为什么重要
+
+v33 的主要风险是规则 profile 仍来自 public residual audit。`mine_train_institution_router.py` 补上的是下一步必须具备的泛化证据层：
+
+1. 从训练数据自动发现 institution cue，而不是靠可见测试样本写规则。
+2. 用 pseudo-hidden split 测试规则是否能迁移到 held-out train rows。
+3. 把候选规则以 CSV 和 Markdown 形式落盘，便于审查、复跑和 ablation。
+
+下一步应从 `candidate_rule_clusters.csv` 里挑高支持、低噪声的制度簇，接入一个小型 train-mined router，然后同时跑 validation 和 pseudo-hidden。只有这条路径表现稳定，才适合继续往最终 prize-compliant submission 靠近。

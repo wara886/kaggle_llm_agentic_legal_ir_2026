@@ -165,3 +165,40 @@ python scripts/audit_prize_compliance.py \
 ```
 
 结果：`needs_review`，`fail_count=0`，`warn_count=3`。这意味着 v33 可作为探索/蒸馏成果，但不能直接包装成最终获奖主线。未来如果要说“满足获奖条件”，必须让审计进入 `pass`，并附带 pseudo-hidden 结果。
+
+## 2026-05-09 接力更新：train-derived mining v1
+
+已新增：
+
+`scripts/mine_train_institution_router.py`
+
+作用：从 `train.csv` 的 query/gold 自动挖掘 phrase -> citation cluster 候选，并用 train-derived pseudo-hidden split 评估，不读取 `test.csv`，不维护 query-id patch table。
+
+默认运行：
+
+```bash
+python scripts/mine_train_institution_router.py
+```
+
+当前默认产物：
+
+- `docs/train_institution_router_v1.md`
+- `artifacts/train_institution_router_v1/summary.json`
+- `artifacts/train_institution_router_v1/candidate_rules.csv`
+- `artifacts/train_institution_router_v1/candidate_rule_clusters.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_predictions.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_trace.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_eval_per_query.csv`
+
+当前默认结果：
+
+- `candidate_rule_count=1668`
+- `pseudo_hidden_rows=96`
+- `pseudo_hidden_matched_rows=34`
+- `pseudo_hidden_macro_f1=0.092175`
+
+使用边界：
+
+- 这不是新提交文件，也不应直接拿来替换 v33。
+- 它是下一步 prize-compliant router 的证据层：先从 `candidate_rule_clusters.csv` 挑 robust cluster，再把少量验证过的 cluster 接入路由器。
+- 继续优化时优先提高 pseudo-hidden 覆盖和 precision；不要为了 public 分数回头手写 `test_*** -> citations`。

@@ -509,3 +509,48 @@ Current v33 status:
 - warnings: `3`
 
 Interpretation: v33 is acceptable as a reproducible score-recovery artifact, but it should not be described as final prize-compliant code until the warnings are resolved. Future final submissions must pass strict audit and include pseudo-hidden generalization evidence.
+
+## 2026-05-09 train-derived institution mining v1
+
+Added the first concrete prize-compliant evidence layer:
+
+`scripts/mine_train_institution_router.py`
+
+What it does:
+
+- uses only `train.csv`, `laws_de.csv`, and deterministic code;
+- builds a train-derived pseudo-hidden split grouped by dominant citation family/article stems;
+- mines repeated query phrases into laws-grounded citation clusters;
+- evaluates the mined phrase router on held-out train rows;
+- writes candidate rules, cluster summaries, traces, per-query evaluation, and a Markdown report.
+
+Default command:
+
+```bash
+python scripts/mine_train_institution_router.py
+```
+
+Default output:
+
+- `artifacts/train_institution_router_v1/summary.json`
+- `artifacts/train_institution_router_v1/candidate_rules.csv`
+- `artifacts/train_institution_router_v1/candidate_rule_clusters.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_predictions.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_trace.csv`
+- `artifacts/train_institution_router_v1/pseudo_hidden_eval_per_query.csv`
+- `docs/train_institution_router_v1.md`
+
+Latest default run:
+
+- train rows total: `1139`
+- train rows for mining: `1043`
+- pseudo-hidden rows: `96`
+- pseudo-hidden topic groups: `89`
+- laws exact citations: `175933`
+- candidate rules: `1668`
+- matched pseudo-hidden rows: `34`
+- pseudo-hidden macro F1: `0.092175`
+
+Interpretation:
+
+This is not yet a submission generator and should not be compared directly with the v33 public score. Its purpose is to move the source of legal-institution routing away from public residual audit and toward train-derived, reproducible evidence. The current miner is deliberately conservative: final candidate citations must exist in `laws_de.csv`, and phrase candidates must contain legal/institution anchors by default. The next step is to use `candidate_rule_clusters.csv` to select robust institution clusters, then plug a small verified subset into a router and test it against validation plus pseudo-hidden before touching leaderboard submissions again.
