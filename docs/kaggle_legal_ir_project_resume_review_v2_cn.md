@@ -1349,3 +1349,38 @@ python scripts/check_local_submission_env.py --check-remote
 这个脚本检查 Python、Git、代理、Kaggle token 和比赛访问，不打印 token 明文，也不提交文件。当前检查全部通过。它的作用是把“本机现在能不能复现实验、能不能安全走提交命令”变成一个明确的 gate，而不是依赖记忆或手工观察。
 
 需要强调：提交通道可用不等于应该立刻提交。当前新的 train-derived mining v1 仍是泛化证据层，不是新 submission candidate。下一次真正提交前，仍应先运行 prize-compliance audit，并提供 validation 与 pseudo-hidden 结果。
+
+## 23. 2026-05-09：train-mined cluster router v1
+
+在 `mine_train_institution_router.py` 之后，新增了一个更接近可泛化系统的中间层：
+
+```text
+scripts/run_train_mined_cluster_router.py
+```
+
+它不再直接把所有 phrase rule 拿去预测，而是先把规则按 citation cluster 聚合，再筛掉低支持、低重复度的 cluster。默认策略要求 cluster 至少有 `4` 个 phrase、最大支持不少于 `4` 行、cluster precision 不低于 `0.5`，并限制单个 cluster 的 citation 数量。这样做的目标不是立刻上榜，而是把 train-mined evidence 从“很多零散 phrase”变成“可审计的法律制度簇”。
+
+脚本同时补了两个通用层：
+
+1. **显式法条锚点保底**：query 中出现 `Art. ... LAW` 时，先用 citation normalizer 归一，再用 `laws_de.csv` 校验；如果 query 只写到 article 层，例如 `Art. 17 LAI` 或 `Art. 934 ZGB`，则用 `article + family` 在法律库里做受控 prefix expansion，默认最多补 4 条。
+2. **确定性英德 legal cue expansion**：validation/test query 多为英文，而 train query 多为德文。脚本把 `pre-trial detention`、`invalidity insurance`、`holographic will`、`gratuitous assistance`、`bank signature` 等英文 issue cue 映射到少量德文制度词，只用于触发 train-mined phrase，不生成最终 citation。
+
+默认命令：
+
+```bash
+python scripts/run_train_mined_cluster_router.py
+```
+
+当前默认结果：
+
+```text
+pseudo-hidden macro F1: 0.111398
+validation macro F1: 0.071024
+pseudo-hidden selected clusters/rules: 35 / 337
+validation selected clusters/rules: 39 / 377
+validation nonempty prediction rows: 8 / 10
+```
+
+这比上一层 raw miner 的 pseudo-hidden `0.092175` 更高，并且首次在这条 prize-compliant 分支里加入了 validation transfer check。它仍然远低于 public-best v33，但二者不可直接比较：v33 是 public residual audit 蒸馏，cluster router v1 是 train/val/laws 驱动的泛化证据层。
+
+当前主要失败模式也很清楚：部分 cue 仍然过宽，例如 `vertragliche haftung`、`koerperverletzung stgb`、`nachlass planen` 会把 query 拉向相邻但不正确的 train cluster。下一步应给 cue expansion 加 family/institution guard，并为 invalidity rehabilitation、child visitation/contact restriction、child maintenance security 这类 validation 未覆盖问题补 train-derived institution families。只有 validation 与 pseudo-hidden 同时稳定改善后，才适合把该 router 接入真正的 submission 生成链路。

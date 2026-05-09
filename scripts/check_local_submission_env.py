@@ -41,6 +41,8 @@ def run_command(args: list[str], timeout: int = 60) -> tuple[int, str]:
         )
     except FileNotFoundError:
         return 127, f"not found: {args[0]}"
+    except OSError as exc:
+        return 126, f"failed to execute {args[0]}: {exc}"
     except subprocess.TimeoutExpired:
         return 124, f"timeout after {timeout}s: {' '.join(args)}"
     return proc.returncode, proc.stdout.strip()

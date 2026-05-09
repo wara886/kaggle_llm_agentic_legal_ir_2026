@@ -214,3 +214,43 @@ python scripts/check_local_submission_env.py --check-remote
 ```
 
 当前检查全部通过：Python、Git、7897 代理、Kaggle token、Kaggle CLI `2.1.2` 和比赛访问都可用。提交命令可用，但不要因为 CLI 通了就直接提交；新 submission 仍必须先通过 `audit_prize_compliance.py`，并附带 validation + pseudo-hidden 证据。
+
+## 2026-05-09 接力更新：train-mined cluster router v1
+
+新增：
+
+`scripts/run_train_mined_cluster_router.py`
+
+默认命令：
+
+```bash
+python scripts/run_train_mined_cluster_router.py
+```
+
+产物：
+
+- `docs/train_mined_cluster_router_v1.md`
+- `artifacts/train_mined_cluster_router_v1/summary.json`
+- `artifacts/train_mined_cluster_router_v1/pseudo_hidden/*`
+- `artifacts/train_mined_cluster_router_v1/validation/*`
+
+当前默认结果：
+
+- pseudo-hidden macro F1: `0.111398`
+- validation macro F1: `0.071024`
+- pseudo-hidden selected clusters/rules: `35` / `337`
+- validation selected clusters/rules: `39` / `377`
+- validation nonempty prediction rows: `8 / 10`
+
+关键意义：
+
+- 这一步仍不是 submission generator。
+- 它把 v1 miner 的 raw phrase rules 收束到 citation-cluster 层，并加入两个通用机制：显式法条锚点保底、英文 query 到德文法律 cue 的确定性扩展。
+- 它不读取 `test.csv`，不依赖 public leaderboard，因此更接近 prize-compliant 主线。
+
+下一步优先级：
+
+1. 审查 `artifacts/train_mined_cluster_router_v1/validation/trace.csv`，重点看 false positive：`koerperverletzung stgb`、`vertragliche haftung`、`nachlass planen` 这类过宽 cue。
+2. 给 cue expansion 加 cluster-family guard，例如 pretrial detention 应偏向 `StPO`，不要误触发少年刑法/普通伤害簇。
+3. 为 val_002、val_005、val_009 这类未覆盖行挖 train-derived institution families：invalidity rehabilitation、child visitation/contact restriction、child maintenance security。
+4. 只在 validation + pseudo-hidden 同时改善后，才考虑把该 router 接到 submission 生成链路。
